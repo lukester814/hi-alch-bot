@@ -6,6 +6,10 @@ import java.awt.geom.RoundRectangle2D;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+// Import required Hi_alch classes
+import Hi_alch.OverlayRenderer.ScriptStatistics;
+import Hi_alch.BotUtils;
+
 /**
  * Modern Paint Renderer with Tabbed Interface
  *
@@ -82,7 +86,7 @@ public class ModernPaintRenderer {
     // ===========================================
 
     private PaintTab activeTab = PaintTab.OVERVIEW;
-    private OverlayRenderer.ScriptStatistics currentStats;
+    private ScriptStatistics currentStats;
     private long lastTabSwitch = 0;
     private boolean enabled = true;
 
@@ -97,7 +101,7 @@ public class ModernPaintRenderer {
     /**
      * Main render method called by onPaint
      */
-    public void render(Graphics2D g, OverlayRenderer.ScriptStatistics stats, String status) {
+    public void render(Graphics2D g, ScriptStatistics stats, String status) {
         if (!enabled || g == null) return;
 
         this.currentStats = stats;

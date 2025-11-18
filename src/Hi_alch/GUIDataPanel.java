@@ -7,6 +7,9 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
+// Import styling utilities
+import static Hi_alch.GUIStyles.*;
+
 /**
  * Professional Data Analytics Panel for OSRS Market Analysis
  *
@@ -107,8 +110,8 @@ public class GUIDataPanel {
         titleLabel.setFont(new Font("Inter", Font.BOLD, 16));
 
         JLabel subtitleLabel = new JLabel("Real-time data from OSRS Wiki API");
-        subtitleLabel.setFont(GUIStyles.SUBTITLE_FONT);
-        subtitleLabel.setForeground(GUIStyles.PROFIT_COLOR);
+        subtitleLabel.setFont(SUBTITLE_FONT);
+        subtitleLabel.setForeground(PROFIT_COLOR);
 
         JPanel titlePanel = new JPanel(new BorderLayout());
         titlePanel.add(titleLabel, BorderLayout.NORTH);
@@ -119,7 +122,7 @@ public class GUIDataPanel {
 
         prevPageButton = new JButton("◀ Previous");
         prevPageButton.setPreferredSize(new Dimension(100, 30));
-        GUIStyles.styleButton(prevPageButton, new Color(108, 117, 125));
+        styleButton(prevPageButton, new Color(108, 117, 125));
         prevPageButton.setEnabled(false);
 
         pageLabel = new JLabel("Page 1");
@@ -128,11 +131,11 @@ public class GUIDataPanel {
 
         nextPageButton = new JButton("Next ▶");
         nextPageButton.setPreferredSize(new Dimension(100, 30));
-        GUIStyles.styleButton(nextPageButton, new Color(108, 117, 125));
+        styleButton(nextPageButton, new Color(108, 117, 125));
 
         refreshDataButton = new JButton("Refresh Data");
         refreshDataButton.setPreferredSize(new Dimension(120, 30));
-        GUIStyles.styleButton(refreshDataButton, new Color(59, 130, 246));
+        styleButton(refreshDataButton, new Color(59, 130, 246));
 
         controlPanel.add(prevPageButton);
         controlPanel.add(pageLabel);
@@ -159,11 +162,11 @@ public class GUIDataPanel {
         };
 
         dataTable = new JTable(tableModel);
-        dataTable.setFont(GUIStyles.TABLE_FONT);
+        dataTable.setFont(TABLE_FONT);
         dataTable.setRowHeight(30);
         dataTable.setGridColor(new Color(70, 70, 70));
         dataTable.setSelectionBackground(new Color(64, 128, 255, 100));
-        dataTable.getTableHeader().setFont(GUIStyles.TABLE_HEADER_FONT);
+        dataTable.getTableHeader().setFont(TABLE_HEADER_FONT);
 
         JScrollPane tableScrollPane = new JScrollPane(dataTable);
         tableScrollPane.setPreferredSize(new Dimension(400, 350));
@@ -181,11 +184,11 @@ public class GUIDataPanel {
         dataLoadingBar = new JProgressBar();
         dataLoadingBar.setStringPainted(true);
         dataLoadingBar.setString("Ready to fetch live OSRS market data");
-        dataLoadingBar.setForeground(GUIStyles.PROFIT_COLOR);
+        dataLoadingBar.setForeground(PROFIT_COLOR);
 
         // Status label
         lastUpdateLabel = new JLabel("Click 'Refresh Data' to load live prices");
-        lastUpdateLabel.setFont(GUIStyles.SUBTITLE_FONT);
+        lastUpdateLabel.setFont(SUBTITLE_FONT);
 
         footerPanel.add(dataLoadingBar, BorderLayout.NORTH);
         footerPanel.add(Box.createVerticalStrut(10), BorderLayout.CENTER);
