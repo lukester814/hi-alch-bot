@@ -1,0 +1,80 @@
+MIT License
+
+Copyright (c) 2025 lukester814
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+IMPORTANT DISCLAIMERS:
+
+1. EDUCATIONAL PURPOSE ONLY
+   This software is provided for educational purposes only, demonstrating
+   software engineering concepts including API integration, GUI development,
+   state machines, and anti-detection techniques.
+
+2. TERMS OF SERVICE
+   Using bots or automation tools in Old School RuneScape (OSRS) violates
+   Jagex's Terms of Service and can result in account bans. The authors
+   do not encourage or endorse violating game terms of service.
+
+3. USE AT YOUR OWN RISK
+   By using this software, you acknowledge and accept all risks associated
+   with automated gameplay, including but not limited to:
+   - Account bans or suspensions
+   - Loss of game progress
+   - Any other consequences imposed by Jagex
+
+4. NO LIABILITY
+   The authors and contributors of this software are not responsible for:
+   - Any consequences resulting from the use of this software
+   - Account bans or penalties
+   - Loss of time, money, or game assets
+   - Any direct or indirect damages
+
+5. RESPONSIBLE USE
+   If you choose to use this software, you should:
+   - Use only on test/alternate accounts
+   - Understand and accept the risks
+   - Not use for commercial purposes
+   - Respect the game and other players
+   - Follow all applicable laws and regulations
+
+6. CONTRIBUTION
+   By contributing to this project, you agree that your contributions
+   will be licensed under the same MIT License.
+
+7. THIRD-PARTY SERVICES
+   This software interacts with:
+   - DreamBot API (separate license and terms apply)
+   - OSRS Wiki API (separate terms apply)
+   - Discord webhooks (Discord terms apply)
+
+   Users are responsible for complying with all applicable third-party
+   terms of service.
+
+---
+
+This software is not affiliated with, endorsed by, or associated with:
+- Jagex Ltd.
+- Old School RuneScape
+- RuneScape
+- DreamBot
+
+All trademarks and copyrights belong to their respective owners.

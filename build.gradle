@@ -1,0 +1,129 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.lukester814'
+version = '2.0.0'
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://repo.dreambot.org/repository/maven-releases/'
+    }
+}
+
+dependencies {
+    // DreamBot API - You'll need to download this JAR and place it in libs/
+    // or configure your own repository
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Note: DreamBot API is not available via public Maven repositories
+    // You need to download it from https://dreambot.org/
+    // and place DreamBot.jar in a libs/ folder
+
+    // Optional: Add these if you want additional features
+    // implementation 'com.google.code.gson:gson:2.10.1'  // For better JSON handling
+    // implementation 'org.slf4j:slf4j-api:2.0.9'          // For better logging
+}
+
+application {
+    // Main class for the application
+    // Note: DreamBot scripts are loaded differently, this is just for reference
+    mainClass = 'Hi_alch.HighAlchBot'
+}
+
+// Source and target encoding
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+// Create a JAR with all dependencies
+task fatJar(type: Jar) {
+    manifest {
+        attributes(
+            'Main-Class': 'Hi_alch.HighAlchBot',
+            'Script-Name': 'High Alchemy Bot v2.0',
+            'Script-Author': 'lukester814',
+            'Script-Version': '2.0.0',
+            'Script-Description': 'Advanced High Alchemy Bot with GUI, Anti-ban, and Live Market Data',
+            'Script-Category': 'MAGIC'
+        )
+    }
+    archiveBaseName = 'hi-alch-bot'
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Task to copy DreamBot API reminder
+task setupReminder {
+    doLast {
+        println """
+
+        ====================================
+        DreamBot API Setup Required
+        ====================================
+
+        To build this project, you need to:
+
+        1. Download DreamBot.jar from https://dreambot.org/
+        2. Create a 'libs' folder in the project root
+        3. Place DreamBot.jar in the libs/ folder
+        4. Run: gradle build
+
+        Alternatively, configure the DreamBot repository in build.gradle
+        if you have access to it.
+
+        ====================================
+        """
+    }
+}
+
+// Custom task to prepare for DreamBot deployment
+task prepareDreamBot(type: Copy, dependsOn: fatJar) {
+    from fatJar
+    into 'build/dreambot'
+    rename { String fileName ->
+        fileName.replace('.jar', '-dreambot.jar')
+    }
+    doLast {
+        println """
+
+        ====================================
+        DreamBot Deployment Package Ready
+        ====================================
+
+        Your script JAR is ready at:
+        build/dreambot/hi-alch-bot-dreambot.jar
+
+        To use in DreamBot:
+        1. Open DreamBot client
+        2. Go to Scripts → Local Scripts
+        3. Add the JAR file
+        4. Select "High Alchemy Bot v2.0"
+
+        ====================================
+        """
+    }
+}
+
+// Clean task
+clean {
+    delete 'build'
+    delete 'out'
+    delete '.gradle'
+}
+
+// Default tasks
+defaultTasks 'build', 'fatJar'
+
+// Gradle wrapper configuration
+wrapper {
+    gradleVersion = '8.5'
+    distributionType = Wrapper.DistributionType.ALL
+}
