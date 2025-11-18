@@ -1,5 +1,9 @@
 package Hi_alch;
 
+import Hi_alch.gui.GUIConfiguration;
+import Hi_alch.overlay.ScriptStatistics;
+import Hi_alch.engine.BotState;
+
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.skills.Skills;
@@ -53,7 +57,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
 
     private volatile boolean botRunning = false;
     private volatile boolean botStopping = false;
-    private AlchBotGUI.GUIConfiguration currentConfig;
+    private GUIConfiguration currentConfig;
     private long sessionStartTime;
     private final Object stateLock = new Object();
 
@@ -133,7 +137,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
 
             // Send final Discord notification
             if (discordManager != null && currentConfig != null && currentConfig.discordNotificationsEnabled) {
-                OverlayRenderer.ScriptStatistics finalStats = new OverlayRenderer.ScriptStatistics();
+                ScriptStatistics finalStats = new ScriptStatistics();
                 finalStats.alchsCompleted = totalAlchs;
                 finalStats.totalProfit = totalProfit;
                 finalStats.xpGained = totalXpGained;
@@ -250,7 +254,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
         try {
             if (settingsManager != null) {
                 // Try to load existing default settings
-                AlchBotGUI.GUIConfiguration loadedConfig = settingsManager.loadDefaultSettings();
+                GUIConfiguration loadedConfig = settingsManager.loadDefaultSettings();
 
                 if (loadedConfig != null && gui != null) {
                     gui.applyConfiguration(loadedConfig);
@@ -292,7 +296,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
                 int delay = alchingEngine.executeNextAction();
 
                 // Update our statistics from the engine
-                OverlayRenderer.ScriptStatistics stats = alchingEngine.getStatistics();
+                ScriptStatistics stats = alchingEngine.getStatistics();
                 if (stats != null) {
                     totalAlchs = stats.alchsCompleted;
                     totalProfit = stats.totalProfit;
@@ -317,7 +321,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
         try {
             if (overlayRenderer != null) {
                 // Create statistics object with correct field names
-                OverlayRenderer.ScriptStatistics stats = new OverlayRenderer.ScriptStatistics();
+                ScriptStatistics stats = new ScriptStatistics();
 
                 // Set statistics using correct field names from your ScriptStatistics class
                 stats.sessionStartTime = sessionStartTime;
@@ -346,7 +350,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     private void sendCompletionNotification() {
         try {
             if (discordManager != null && currentConfig != null && currentConfig.discordNotificationsEnabled) {
-                OverlayRenderer.ScriptStatistics finalStats = new OverlayRenderer.ScriptStatistics();
+                ScriptStatistics finalStats = new ScriptStatistics();
                 finalStats.alchsCompleted = totalAlchs;
                 finalStats.totalProfit = totalProfit;
                 finalStats.xpGained = totalXpGained;
@@ -365,7 +369,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     // ===========================================
 
     @Override
-    public void onStartBot(AlchBotGUI.GUIConfiguration config) {
+    public void onStartBot(GUIConfiguration config) {
         try {
             synchronized (stateLock) {
                 if (botRunning) {
@@ -518,7 +522,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     public void onLoadSettings() {
         try {
             if (settingsManager != null && gui != null) {
-                AlchBotGUI.GUIConfiguration loadedConfig = settingsManager.loadSettings("user_settings");
+                GUIConfiguration loadedConfig = settingsManager.loadSettings("user_settings");
 
                 if (loadedConfig != null) {
                     gui.applyConfiguration(loadedConfig);
@@ -582,7 +586,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     /**
      * Validate bot configuration
      */
-    private boolean validateConfiguration(AlchBotGUI.GUIConfiguration config) {
+    private boolean validateConfiguration(GUIConfiguration config) {
         try {
             // Validate item selection
             if (config.selectedItemName == null || config.selectedItemName.trim().isEmpty()) {
@@ -627,7 +631,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     /**
      * Configure all components with the provided configuration
      */
-    private void configureComponents(AlchBotGUI.GUIConfiguration config) {
+    private void configureComponents(GUIConfiguration config) {
         try {
             // Configure alchemy engine with individual parameters using correct method signature
             if (alchingEngine != null) {
@@ -685,7 +689,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
         try {
             if (overlayRenderer != null) {
                 // Create statistics for rendering using correct field names
-                OverlayRenderer.ScriptStatistics stats = new OverlayRenderer.ScriptStatistics();
+                ScriptStatistics stats = new ScriptStatistics();
                 stats.sessionStartTime = sessionStartTime;
                 stats.scriptRuntime = System.currentTimeMillis() - sessionStartTime;
                 stats.alchsCompleted = totalAlchs;

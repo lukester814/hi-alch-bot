@@ -1,5 +1,8 @@
 package Hi_alch;
 
+import Hi_alch.gui.GUIConfiguration;
+import Hi_alch.gui.components.GUIComponentFactory;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -177,38 +180,6 @@ public class AlchBotGUI {
         void onLoadSettings();
         void onItemSelected(String itemName);
         void onConfigurationChanged();
-        void onAlchemyConfigurationChanged(boolean enabled);
-    }
-
-    /**
-     * Configuration data class - WITH ALL FIELDS
-     */
-    public static class GUIConfiguration {
-        public String selectedItemName;
-        public int selectedItemId;
-        public int buyLimit;
-        public double priceMarkup;
-        public int natureRuneAmount;
-        public boolean smartProfitEnabled;
-        public boolean worldHopEnabled;
-        public boolean alchConfigEnabled;
-        public boolean skipBuying;
-        public boolean restockWhenEmpty;
-        public String discordWebhookUrl;
-        public boolean discordNotificationsEnabled;
-        public boolean antibanEnabled;
-        public int antibanAggression;
-        public boolean breakSystemEnabled;
-        public int minBreakMinutes;
-        public int maxBreakMinutes;
-        public boolean fatigueSystemEnabled;
-        public boolean profileSeedingEnabled;
-        public String userProfileSeed;
-        public int currentFatigueLevel;
-
-        @Override
-        public String toString() {
-            return String.format("Item: %s | Limit: %d | Markup: %.1f%% | Runes: %d | Skip: %s | Restock: %s",
                     selectedItemName, buyLimit, priceMarkup, natureRuneAmount, skipBuying, restockWhenEmpty);
         }
     }

@@ -1,5 +1,8 @@
 package Hi_alch;
 
+import Hi_alch.engine.BotState;
+import Hi_alch.overlay.ScriptStatistics;
+
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.grandexchange.GrandExchange;
 import org.dreambot.api.methods.magic.Magic;
@@ -17,32 +20,6 @@ import org.dreambot.api.methods.interactive.Players;
 /**
  * High Alchemy Bot Engine - Core Logic System
  * Utility class for managing alchemy operations
- */
-public class AlchingEngine {
-
-    // ===========================================
-    // BOT STATES ENUM
-    // ===========================================
-
-    public enum BotState {
-        INITIALIZING("Initializing bot systems"),
-        CHECKING_SUPPLIES("Checking inventory supplies"),
-        BUYING_ITEMS("Purchasing items from GE"),
-        BUYING_NATURE_RUNES("Buying nature runes"),
-        ALCHING("Performing high alchemy"),
-        RESTOCKING("Restocking items"),
-        BANKING("Banking items"),
-        ERROR_RECOVERY("Recovering from error"),
-        COMPLETED("Session completed");
-
-        private final String description;
-
-        BotState(String description) {
-            this.description = description;
-        }
-
-        public String getDescription() {
-            return description;
         }
     }
 
@@ -51,7 +28,7 @@ public class AlchingEngine {
     // ===========================================
 
     private BotState currentState;
-    private OverlayRenderer.ScriptStatistics statistics;
+    private ScriptStatistics statistics;
     private boolean isInitialized;
     private boolean restockWhenEmpty;
 
@@ -80,7 +57,7 @@ public class AlchingEngine {
     // ===========================================
 
     public AlchingEngine() {
-        this.statistics = new OverlayRenderer.ScriptStatistics();
+        this.statistics = new ScriptStatistics();
         this.currentState = BotState.INITIALIZING;
         this.alchingCount = 0;
         this.totalProfit = 0;
@@ -803,7 +780,7 @@ public class AlchingEngine {
         BotUtils.log(message);
     }
 
-    public OverlayRenderer.ScriptStatistics getStatistics() {
+    public ScriptStatistics getStatistics() {
         statistics.calculateDerivedStats();
         return statistics;
     }

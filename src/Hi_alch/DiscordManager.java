@@ -1,5 +1,8 @@
 package Hi_alch;
 
+import Hi_alch.gui.GUIConfiguration;
+import Hi_alch.overlay.ScriptStatistics;
+
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -93,7 +96,7 @@ public class DiscordManager {
     /**
      * Send startup notification when bot begins
      */
-    public void sendStartupNotification(AlchBotGUI.GUIConfiguration config) {
+    public void sendStartupNotification(GUIConfiguration config) {
         if (!isEnabled || !notificationsEnabled) return;
 
         try {
@@ -147,7 +150,7 @@ public class DiscordManager {
     /**
      * Send progress update notification
      */
-    public void sendProgressUpdate(OverlayRenderer.ScriptStatistics stats) {
+    public void sendProgressUpdate(ScriptStatistics stats) {
         if (!isEnabled || !notificationsEnabled) return;
 
         try {
@@ -219,7 +222,7 @@ public class DiscordManager {
     /**
      * Send completion notification when bot finishes
      */
-    public void sendCompletionNotification(OverlayRenderer.ScriptStatistics finalStats) {
+    public void sendCompletionNotification(ScriptStatistics finalStats) {
         if (!isEnabled || !notificationsEnabled) return;
 
         try {
@@ -333,7 +336,7 @@ public class DiscordManager {
 
             // This would ideally get stats from the bot coordinator
             // For now, create a placeholder stats object
-            OverlayRenderer.ScriptStatistics stats = new OverlayRenderer.ScriptStatistics();
+            ScriptStatistics stats = new ScriptStatistics();
 
             sendProgressUpdate(stats);
             lastPeriodicUpdate = System.currentTimeMillis();
