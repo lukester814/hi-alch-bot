@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+// Import extracted GUI components
+import static Hi_alch.GUIStyles.*;
+
 /**
  * Professional High Alchemy Bot GUI - COMPLETE VERSION WITH ALL FIXES
  *
@@ -76,40 +79,14 @@ public class AlchBotGUI {
     private JProgressBar fatigueBar;
     private JLabel fatigueLabel;
 
-    // Data Tab Components
-    private JTable dataTable;
-    private DefaultTableModel tableModel;
-    private JButton refreshDataButton;
-    private JLabel lastUpdateLabel;
-    private JProgressBar dataLoadingBar;
-    private JScrollPane dataScrollPane;
+    // Data Tab Components - Using extracted GUIDataPanel
+    private GUIDataPanel guiDataPanel;
 
     // Helper components
     private final List<JLabel> questionMarkLabels = new ArrayList<>();
 
     // Store the found custom item ID
     private int foundCustomItemId = -1;
-
-    // Pagination fields
-    private int currentDataPage = 1;
-    private List<String> allF2PItems = Arrays.asList(
-            "Rune longsword", "Rune 2h sword", "Rune platebody", "Rune platelegs",
-            "Rune plateskirt", "Rune chainbody", "Rune med helm", "Rune full helm",
-            "Rune sq shield", "Rune kiteshield", "Rune scimitar", "Rune battleaxe",
-            "Rune dagger", "Rune mace", "Rune sword", "Rune warhammer",
-            "Adamant platebody", "Adamant platelegs", "Adamant chainbody",
-            "Green d'hide body", "Green d'hide chaps", "Green d'hide vambraces"
-    );
-
-    private List<String> allP2PItems = Arrays.asList(
-            "Dragon longsword", "Dragon battleaxe", "Dragon dagger", "Dragon mace",
-            "Dragon scimitar", "Dragon sword", "Dragon spear", "Dragon halberd",
-            "Black d'hide body", "Black d'hide chaps", "Black d'hide vambraces",
-            "Red d'hide body", "Red d'hide chaps", "Blue d'hide body", "Blue d'hide chaps",
-            "Rune crossbow", "Magic longbow", "Yew longbow", "Maple longbow",
-            "Battlestaff", "Air battlestaff", "Water battlestaff", "Earth battlestaff",
-            "Fire battlestaff", "Mystic robe top", "Mystic robe bottom"
-    );
 
     // ===========================================
     // ITEM CATEGORIES - F2P AND P2P
@@ -304,7 +281,10 @@ public class AlchBotGUI {
         settingsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         settingsScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        dataScrollPane = new JScrollPane(createDataPanel());
+        // Use extracted GUIDataPanel component
+        guiDataPanel = new GUIDataPanel();
+        guiDataPanel.setupEventHandlers();
+        JScrollPane dataScrollPane = new JScrollPane(guiDataPanel.getPanel());
         dataScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         dataScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         dataScrollPane.getVerticalScrollBar().setUnitIncrement(16);
@@ -319,10 +299,8 @@ public class AlchBotGUI {
         // Tab change listener for data refresh
         tabbedPane.addChangeListener(e -> {
             int selectedIndex = tabbedPane.getSelectedIndex();
-            if (selectedIndex == 2) { // Analytics tab
-                if (tableModel.getRowCount() == 0) {
-                    SwingUtilities.invokeLater(() -> refreshDataTable());
-                }
+            if (selectedIndex == 2 && guiDataPanel != null) { // Analytics tab
+                SwingUtilities.invokeLater(() -> guiDataPanel.refreshDataTable());
             }
         });
 
@@ -1279,8 +1257,8 @@ public class AlchBotGUI {
         // Test webhook button
         testWebhookButton.addActionListener(e -> testWebhookWithFeedback());
 
-        // Refresh data button
-        refreshDataButton.addActionListener(e -> refreshDataTable());
+        // Refresh data button (handled by GUIDataPanel now)
+        // refreshDataButton is created and handled within GUIDataPanel
 
         // Configuration change handlers
         buyLimitSpinner.addChangeListener(e -> {

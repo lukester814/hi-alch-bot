@@ -45,6 +45,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     private AntibanSystem antibanSystem;
     private DiscordManager discordManager;
     private OverlayRenderer overlayRenderer;
+    private ModernPaintRenderer modernPaint;
     private SettingsManager settingsManager;
 
     // ===========================================
@@ -190,6 +191,10 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
             // Initialize overlay renderer
             overlayRenderer = new OverlayRenderer();
             BotUtils.log("🖼️ OverlayRenderer initialized");
+
+            // Initialize modern paint renderer
+            modernPaint = new ModernPaintRenderer();
+            BotUtils.log("🎨 ModernPaintRenderer initialized");
 
             // Initialize settings manager
             settingsManager = new SettingsManager();
@@ -683,20 +688,41 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     @Override
     public void onPaint(java.awt.Graphics2D g) {
         try {
-            if (overlayRenderer != null) {
-                // Create statistics for rendering using correct field names
-                OverlayRenderer.ScriptStatistics stats = new OverlayRenderer.ScriptStatistics();
-                stats.sessionStartTime = sessionStartTime;
-                stats.scriptRuntime = System.currentTimeMillis() - sessionStartTime;
-                stats.alchsCompleted = totalAlchs;
-                stats.totalProfit = totalProfit;
-                stats.xpGained = totalXpGained;
-                stats.isRunning = botRunning;
-                stats.currentState = alchingEngine != null ? alchingEngine.getCurrentStateDescription() : "Stopped";
-                stats.calculateDerivedStats();
+            // Create statistics for rendering using correct field names
+            OverlayRenderer.ScriptStatistics stats = new OverlayRenderer.ScriptStatistics();
+            stats.sessionStartTime = sessionStartTime;
+            stats.scriptRuntime = System.currentTimeMillis() - sessionStartTime;
+            stats.alchsCompleted = totalAlchs;
+            stats.totalProfit = totalProfit;
+            stats.xpGained = totalXpGained;
+            stats.isRunning = botRunning;
+            stats.currentState = alchingEngine != null ? alchingEngine.getCurrentStateDescription() : "Stopped";
+            stats.currentAction = alchingEngine != null ? alchingEngine.getCurrentStateDescription() : "Idle";
 
-                String status = botRunning ? "Running" : "Stopped";
+            // Get additional stats from alching engine if available
+            if (alchingEngine != null) {
+                OverlayRenderer.ScriptStatistics engineStats = alchingEngine.getStatistics();
+                if (engineStats != null) {
+                    stats.currentBuyPrice = engineStats.currentBuyPrice;
+                    stats.currentAlchValue = engineStats.currentAlchValue;
+                    stats.itemsBought = engineStats.itemsBought;
+                    stats.errorsEncountered = engineStats.errorsEncountered;
+                    stats.lastError = engineStats.lastError;
+                }
+            }
+
+            stats.calculateDerivedStats();
+
+            String status = botRunning ? "Running" : "Stopped";
+
+            // Render both old and new paint (user can choose which they prefer)
+            if (overlayRenderer != null) {
                 overlayRenderer.render(g, stats, status);
+            }
+
+            // Render modern tabbed paint
+            if (modernPaint != null) {
+                modernPaint.render(g, stats, status);
             }
         } catch (Exception e) {
             // Don't log paint errors too frequently to avoid spam
