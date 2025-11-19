@@ -1560,7 +1560,10 @@ public class AlchBotGUI {
      * Refresh the data table
      */
     public void refreshDataTable() {
-        refreshDataTablePage(1);
+        // Data table is now handled by GUIDataPanel
+        if (guiDataPanel != null) {
+            guiDataPanel.refreshDataTable();
+        }
     }
 
     /**

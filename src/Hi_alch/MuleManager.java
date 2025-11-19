@@ -432,7 +432,8 @@ public class MuleManager {
             if (autoTransferProfit) {
                 int availableGP = Inventory.count(995); // Coins
                 if (availableGP > 0) {
-                    if (Trade.tradeItem(995, availableGP)) {
+                    Item coinsItem = Inventory.get(995);
+                    if (coinsItem != null && coinsItem.interact("Offer-All")) {
                         gpToTransfer = availableGP;
                         totalGPTransferred += availableGP;
                         BotUtils.log("💵 Offered " + BotUtils.formatNumber(availableGP) + " GP");
@@ -445,7 +446,7 @@ public class MuleManager {
             // Offer items if auto-transfer is enabled
             if (autoTransferItems) {
                 for (Item item : Inventory.all(i -> i != null && i.getId() != 995)) {
-                    if (Trade.tradeItem(item.getId(), item.getAmount())) {
+                    if (item.interact("Offer-All")) {
                         itemsToTransfer += item.getAmount();
                         totalItemsTransferred += item.getAmount();
                         BotUtils.log("📦 Offered " + item.getAmount() + "x " + item.getName());
@@ -460,11 +461,11 @@ public class MuleManager {
             Sleep.sleep(2000 + random.nextInt(3000), 4000 + random.nextInt(2000));
 
             // Accept first screen
-            if (Trade.accept(false)) {
+            if (Trade.accept()) {
                 BotUtils.log("✅ Accepted first trade screen");
 
                 // Wait for second screen
-                if (!Sleep.sleepUntil(() -> Trade.isOpen(true), 15000)) {
+                if (!Sleep.sleepUntil(Trade::isOpen, 15000)) {
                     BotUtils.log("❌ Second trade screen did not open");
                     return false;
                 }
@@ -492,7 +493,7 @@ public class MuleManager {
             Sleep.sleep(1500 + random.nextInt(2500), 3000 + random.nextInt(1500));
 
             // Accept second screen
-            if (Trade.accept(true)) {
+            if (Trade.accept()) {
                 BotUtils.log("✅ Confirmed trade");
                 return true;
             } else {

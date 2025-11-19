@@ -292,13 +292,7 @@ public class BotUtils {
      */
     public static boolean hopToWorld(int worldNumber) {
         try {
-            World targetWorld = Worlds.get(worldNumber);
-            if (targetWorld == null) {
-                log("❌ World " + worldNumber + " not found");
-                return false;
-            }
-
-            if (Worlds.hop(targetWorld)) {
+            if (Worlds.hopToWorld(worldNumber)) {
                 Sleep.sleepUntil(() -> Worlds.getCurrentWorld() == worldNumber, 10000);
                 return Worlds.getCurrentWorld() == worldNumber;
             }
