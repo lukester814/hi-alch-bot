@@ -27,11 +27,11 @@ import javax.swing.SwingUtilities;
  * specific functionality and communicates through well-defined interfaces.
  */
 @ScriptManifest(
-        author = "YourName",
+        author = "Plebs Scripts",
         description = "Advanced High Alchemy Bot with GUI, Anti-ban, and Live Market Data",
         category = Category.MAGIC,
         version = 2.0,
-        name = "High Alchemy Bot v2.0"
+        name = "High Alchemy Bot v0.02"
 )
 public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventListener {
 
