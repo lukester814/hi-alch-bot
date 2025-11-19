@@ -461,8 +461,8 @@ public class MuleManager {
             Sleep.sleep(2000 + random.nextInt(3000), 4000 + random.nextInt(2000));
 
             // Accept first screen by clicking the accept button
-            if (org.dreambot.api.methods.widget.Widgets.getWidgetChild(335, 16) != null &&
-                org.dreambot.api.methods.widget.Widgets.getWidgetChild(335, 16).interact()) {
+            if (org.dreambot.api.methods.widget.Widgets.get(335, 16) != null &&
+                org.dreambot.api.methods.widget.Widgets.get(335, 16).interact()) {
                 BotUtils.log("✅ Accepted first trade screen");
 
                 // Wait for second screen
@@ -494,8 +494,8 @@ public class MuleManager {
             Sleep.sleep(1500 + random.nextInt(2500), 3000 + random.nextInt(1500));
 
             // Accept second screen by clicking the accept button
-            if (org.dreambot.api.methods.widget.Widgets.getWidgetChild(334, 19) != null &&
-                org.dreambot.api.methods.widget.Widgets.getWidgetChild(334, 19).interact()) {
+            if (org.dreambot.api.methods.widget.Widgets.get(334, 19) != null &&
+                org.dreambot.api.methods.widget.Widgets.get(334, 19).interact()) {
                 BotUtils.log("✅ Confirmed trade");
                 return true;
             } else {
