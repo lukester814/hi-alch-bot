@@ -26,14 +26,25 @@ public class AntibanSystem {
     // CONFIGURATION & CONSTANTS
     // ===========================================
 
-    // Random number generator
-    private static final Random RANDOM = new Random();
+    // Random number generator (can be seeded for consistent behavior)
+    private Random random;
+
+    // Profile-based seeding
+    private String userProfileSeed = "";
+    private long profileBasedSeed = 0;
 
     // Anti-ban behavior frequencies (lower = more frequent)
+    // These are BASE values - modified by profile seed
     private static final int CAMERA_ADJUSTMENT_CHANCE = 100;  // 1% chance per action
     private static final int TAB_CHECK_CHANCE = 200;          // 0.5% chance per action
     private static final int MOUSE_LEAVE_CHANCE = 150;        // 0.67% chance per action
     private static final int SKILL_CHECK_CHANCE = 300;        // 0.33% chance per action
+
+    // Profile-modified frequencies (calculated from seed)
+    private int profileCameraChance = CAMERA_ADJUSTMENT_CHANCE;
+    private int profileTabChance = TAB_CHECK_CHANCE;
+    private int profileMouseChance = MOUSE_LEAVE_CHANCE;
+    private int profileSkillChance = SKILL_CHECK_CHANCE;
 
     // Timing configurations
     private static final long MIN_ACTION_INTERVAL = 1000;     // 1 second
@@ -74,6 +85,9 @@ public class AntibanSystem {
     // ===========================================
 
     public AntibanSystem() {
+        // Initialize with unseeded random (will be seeded later if profile provided)
+        this.random = new Random();
+
         this.sessionStartTime = System.currentTimeMillis();
         this.lastActionTime = System.currentTimeMillis();
         this.nextBreakTime = calculateNextBreakTime();
@@ -101,18 +115,102 @@ public class AntibanSystem {
     // ===========================================
 
     /**
-     * Configure the anti-ban system
+     * Configure the anti-ban system with username-based seeding
      */
-    public void configure(boolean enabled, String botType, int aggressionLevel) {
+    public void configure(boolean enabled, String userProfileSeed, int aggressionLevel) {
         this.isEnabled = enabled;
-        this.botType = botType;
+        this.userProfileSeed = userProfileSeed != null ? userProfileSeed : "";
         this.aggressionLevel = BotUtils.clamp(aggressionLevel, 1, 10);
 
-        BotUtils.log("⚙️ AntibanSystem configured: " + (enabled ? "ENABLED" : "DISABLED"));
-        BotUtils.log("🎯 Bot type: " + botType + " | Aggression: " + aggressionLevel + "/10");
+        // Generate profile-based seed from username
+        if (this.userProfileSeed != null && !this.userProfileSeed.isEmpty()) {
+            this.profileBasedSeed = generateProfileSeed(this.userProfileSeed);
+            this.random = new Random(this.profileBasedSeed);
+
+            // Calculate profile-specific behavior frequencies
+            calculateProfileBehaviors();
+
+            BotUtils.log("⚙️ AntibanSystem configured: " + (enabled ? "ENABLED" : "DISABLED"));
+            BotUtils.log("🎯 Profile: " + maskUsername(this.userProfileSeed) + " | Seed: " + this.profileBasedSeed);
+            BotUtils.log("🎲 Aggression: " + aggressionLevel + "/10");
+            BotUtils.log("📊 Profile behaviors calculated (unique to this username)");
+        } else {
+            // No profile seed - use random behavior
+            this.random = new Random();
+            BotUtils.log("⚙️ AntibanSystem configured: " + (enabled ? "ENABLED" : "DISABLED"));
+            BotUtils.log("🎲 Aggression: " + aggressionLevel + "/10 (no profile seed - random behavior)");
+        }
 
         // Adjust mouse settings based on aggression level
         configureMouseSettings();
+    }
+
+    /**
+     * Generate a deterministic seed from username
+     * Same username = same seed = same behavior pattern
+     */
+    private long generateProfileSeed(String username) {
+        if (username == null || username.isEmpty()) {
+            return System.currentTimeMillis(); // Fallback to random
+        }
+
+        // Use hashCode for deterministic seeding
+        long seed = 0;
+        for (int i = 0; i < username.length(); i++) {
+            seed = seed * 31 + username.charAt(i);
+        }
+
+        // Add some additional mixing for better distribution
+        seed ^= (seed >>> 16);
+        seed *= 0x85ebca6b;
+        seed ^= (seed >>> 13);
+        seed *= 0xc2b2ae35;
+        seed ^= (seed >>> 16);
+
+        return seed;
+    }
+
+    /**
+     * Calculate profile-specific behavior frequencies based on seed
+     * Each username will have unique behavior patterns
+     */
+    private void calculateProfileBehaviors() {
+        // Use seeded random to generate profile-specific variations
+        Random profileRandom = new Random(profileBasedSeed);
+
+        // Vary each behavior frequency by ±30% based on profile
+        profileCameraChance = varyFrequency(CAMERA_ADJUSTMENT_CHANCE, profileRandom);
+        profileTabChance = varyFrequency(TAB_CHECK_CHANCE, profileRandom);
+        profileMouseChance = varyFrequency(MOUSE_LEAVE_CHANCE, profileRandom);
+        profileSkillChance = varyFrequency(SKILL_CHECK_CHANCE, profileRandom);
+
+        BotUtils.log("📊 Profile behavior frequencies:");
+        BotUtils.log("   Camera: " + profileCameraChance + " (base: " + CAMERA_ADJUSTMENT_CHANCE + ")");
+        BotUtils.log("   Tabs: " + profileTabChance + " (base: " + TAB_CHECK_CHANCE + ")");
+        BotUtils.log("   Mouse: " + profileMouseChance + " (base: " + MOUSE_LEAVE_CHANCE + ")");
+        BotUtils.log("   Skills: " + profileSkillChance + " (base: " + SKILL_CHECK_CHANCE + ")");
+    }
+
+    /**
+     * Vary a frequency value by ±30% based on profile random
+     */
+    private int varyFrequency(int baseFrequency, Random profileRandom) {
+        // Generate variation between 0.7x and 1.3x of base
+        double variation = 0.7 + (profileRandom.nextDouble() * 0.6); // 0.7 to 1.3
+        int varied = (int)(baseFrequency * variation);
+
+        // Ensure minimum of 50 (max 2% chance)
+        return Math.max(50, varied);
+    }
+
+    /**
+     * Mask username for logging (show first 2 chars + ***)
+     */
+    private String maskUsername(String username) {
+        if (username == null || username.length() <= 2) {
+            return "***";
+        }
+        return username.substring(0, Math.min(2, username.length())) + "***";
     }
 
     /**
@@ -153,10 +251,10 @@ public class AntibanSystem {
         int baseDelay = 1800 - (aggressionLevel * 100); // 1700ms to 900ms range
         int variance = baseDelay / 3; // 33% variance
 
-        int delay = baseDelay + RANDOM.nextInt(variance * 2) - variance;
+        int delay = baseDelay + random.nextInt(variance * 2) - variance;
 
         // Add occasional longer pauses (human hesitation)
-        if (RANDOM.nextInt(20) == 0) { // 5% chance
+        if (random.nextInt(20) == 0) { // 5% chance
             delay += BotUtils.randomDelay(1000, 3000);
         }
 
@@ -176,25 +274,26 @@ public class AntibanSystem {
 
     /**
      * Perform random anti-ban behaviors
+     * Uses profile-specific frequencies for username-based behavior variation
      */
     private void performRandomBehaviors() {
-        // Camera adjustment
-        if (shouldPerformBehavior(CAMERA_ADJUSTMENT_CHANCE)) {
+        // Camera adjustment (uses profile-specific frequency)
+        if (shouldPerformBehavior(profileCameraChance)) {
             performCameraAdjustment();
         }
 
-        // Tab checking
-        if (shouldPerformBehavior(TAB_CHECK_CHANCE)) {
+        // Tab checking (uses profile-specific frequency)
+        if (shouldPerformBehavior(profileTabChance)) {
             performTabCheck();
         }
 
-        // Mouse leaving game area
-        if (shouldPerformBehavior(MOUSE_LEAVE_CHANCE)) {
+        // Mouse leaving game area (uses profile-specific frequency)
+        if (shouldPerformBehavior(profileMouseChance)) {
             performMouseLeave();
         }
 
-        // Skill checking (for relevant bot types)
-        if (shouldPerformBehavior(SKILL_CHECK_CHANCE) && botType.contains("skill")) {
+        // Skill checking (uses profile-specific frequency)
+        if (shouldPerformBehavior(profileSkillChance) && botType.contains("skill")) {
             performSkillCheck();
         }
     }
@@ -344,7 +443,7 @@ public class AntibanSystem {
         if (sessionDuration > 2 * 60 * 60 * 1000) { // After 2 hours
             // Increasing chance of break the longer we run
             int breakChance = (int) (sessionDuration / (60 * 60 * 1000)); // 1% per hour
-            if (RANDOM.nextInt(1000) < breakChance) {
+            if (random.nextInt(1000) < breakChance) {
                 return true;
             }
         }
@@ -446,13 +545,14 @@ public class AntibanSystem {
 
     /**
      * Check if we should perform a behavior based on chance
+     * Uses profile-seeded random for consistent behavior per username
      */
     private boolean shouldPerformBehavior(int chance) {
         // Adjust chance based on aggression level
         // Higher aggression = less anti-ban behaviors
         int adjustedChance = chance + (aggressionLevel * 50);
 
-        return RANDOM.nextInt(adjustedChance) == 0;
+        return random.nextInt(adjustedChance) == 0;
     }
 
     // ===========================================
