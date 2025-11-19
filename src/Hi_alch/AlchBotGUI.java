@@ -82,6 +82,9 @@ public class AlchBotGUI {
     // Data Tab Components - Using extracted GUIDataPanel
     private GUIDataPanel guiDataPanel;
 
+    // Mule Tab Components - Using extracted GUIMulePanel
+    private GUIMulePanel guiMulePanel;
+
     // Helper components
     private final List<JLabel> questionMarkLabels = new ArrayList<>();
 
@@ -289,10 +292,19 @@ public class AlchBotGUI {
         dataScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         dataScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
+        // Use extracted GUIMulePanel component
+        guiMulePanel = new GUIMulePanel();
+        guiMulePanel.setupEventHandlers();
+        JScrollPane muleScrollPane = new JScrollPane(guiMulePanel.getPanel());
+        muleScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        muleScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        muleScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
         // Add tabs without icons (as requested)
         tabbedPane.addTab("Configuration", null, mainScrollPane, "Main bot configuration and item selection");
         tabbedPane.addTab("Advanced", null, settingsScrollPane, "Anti-ban settings and Discord integration");
         tabbedPane.addTab("Analytics", null, dataScrollPane, "Live market data and profit analysis");
+        tabbedPane.addTab("Mule Support", null, muleScrollPane, "Configure automated mule trading");
 
         tabbedPane.setSelectedIndex(0);
 
