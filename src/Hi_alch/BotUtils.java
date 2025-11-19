@@ -288,6 +288,28 @@ public class BotUtils {
     }
 
     /**
+     * Hop to a specific world
+     */
+    public static boolean hopToWorld(int worldNumber) {
+        try {
+            World targetWorld = Worlds.get(worldNumber);
+            if (targetWorld == null) {
+                log("❌ World " + worldNumber + " not found");
+                return false;
+            }
+
+            if (Worlds.hop(targetWorld)) {
+                Sleep.sleepUntil(() -> Worlds.getCurrentWorld() == worldNumber, 10000);
+                return Worlds.getCurrentWorld() == worldNumber;
+            }
+            return false;
+        } catch (Exception e) {
+            logError("Error hopping to world " + worldNumber, e);
+            return false;
+        }
+    }
+
+    /**
      * Check if inventory is full
      */
     public static boolean isInventoryFull() {

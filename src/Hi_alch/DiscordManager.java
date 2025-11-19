@@ -394,7 +394,7 @@ public class DiscordManager {
                     "  }]\n" +
                     "}";
 
-            sendMessage(message);
+            sendWebhookMessage(currentWebhookUrl, message);
             BotUtils.log("📨 Session goal notification sent to Discord");
 
         } catch (Exception e) {
