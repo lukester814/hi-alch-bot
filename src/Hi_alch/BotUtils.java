@@ -1,20 +1,10 @@
 package Hi_alch;
 
-import org.dreambot.api.methods.container.impl.Inventory;
-import org.dreambot.api.methods.input.Camera;
-import org.dreambot.api.methods.input.mouse.MouseSettings;
-import org.dreambot.api.methods.world.World;
-import org.dreambot.api.methods.world.Worlds;
-import org.dreambot.api.methods.interactive.Players;
-import org.dreambot.api.utilities.Sleep;
-import org.dreambot.api.utilities.Logger;
-
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
