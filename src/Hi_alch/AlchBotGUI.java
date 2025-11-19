@@ -85,6 +85,10 @@ public class AlchBotGUI {
     // Mule Tab Components - Using extracted GUIMulePanel
     private GUIMulePanel guiMulePanel;
 
+    // NEW PROFESSIONAL FEATURES PANELS
+    private GUISessionGoalsPanel guiSessionGoalsPanel;
+    private GUIBreaksPanel guiBreaksPanel;
+
     // Helper components
     private final List<JLabel> questionMarkLabels = new ArrayList<>();
 
@@ -300,9 +304,26 @@ public class AlchBotGUI {
         muleScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         muleScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
+        // NEW PROFESSIONAL FEATURES PANELS
+        // Session Goals Panel
+        guiSessionGoalsPanel = new GUISessionGoalsPanel();
+        JScrollPane goalsScrollPane = new JScrollPane(guiSessionGoalsPanel);
+        goalsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        goalsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        goalsScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        // Breaks & Antiban Panel
+        guiBreaksPanel = new GUIBreaksPanel();
+        JScrollPane breaksScrollPane = new JScrollPane(guiBreaksPanel);
+        breaksScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        breaksScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        breaksScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
         // Add tabs without icons (as requested)
         tabbedPane.addTab("Configuration", null, mainScrollPane, "Main bot configuration and item selection");
         tabbedPane.addTab("Advanced", null, settingsScrollPane, "Anti-ban settings and Discord integration");
+        tabbedPane.addTab("Session Goals", null, goalsScrollPane, "Configure auto-stop conditions and goals");
+        tabbedPane.addTab("Breaks & Antiban", null, breaksScrollPane, "Configure breaks and antiban behaviors");
         tabbedPane.addTab("Analytics", null, dataScrollPane, "Live market data and profit analysis");
         tabbedPane.addTab("Mule Support", null, muleScrollPane, "Configure automated mule trading");
 

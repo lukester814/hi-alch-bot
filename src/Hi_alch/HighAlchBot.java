@@ -48,6 +48,14 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     private ModernPaintRenderer modernPaint;
     private SettingsManager settingsManager;
 
+    // NEW PROFESSIONAL FEATURES
+    private SessionGoalsManager goalsManager;
+    private BankManager bankManager;
+    private LocationManager locationManager;
+    private CSVExporter csvExporter;
+    private GESlotManager geSlotManager;
+    private ProfileManager profileManager;
+
     // ===========================================
     // BOT STATE MANAGEMENT
     // ===========================================
@@ -107,14 +115,62 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
                 }
             }
 
-            // Update anti-ban system
+            // 1. Check Session Goals - HIGHEST PRIORITY
+            if (goalsManager != null && goalsManager.shouldStop()) {
+                BotUtils.log("🎯 Session goal reached!");
+                BotUtils.log(goalsManager.getGoalReachedMessage());
+
+                // Export final session summary
+                exportSessionSummary();
+
+                // Stop bot
+                stopBotExecution();
+                return -1;
+            }
+
+            // 2. Update Session Goals Progress
+            if (goalsManager != null) {
+                goalsManager.updateProgress(totalAlchs, totalProfit);
+            }
+
+            // 3. Update GE Slot Manager (if at GE)
+            updateGESlotManager();
+
+            // 4. Ensure we're at the correct location
+            if (locationManager != null && !locationManager.isAtLocation()) {
+                BotUtils.log("📍 Not at correct location - navigating...");
+                if (locationManager.ensureAtLocation()) {
+                    BotUtils.log("✅ Arrived at location");
+                    return 2000;
+                } else {
+                    BotUtils.log("❌ Failed to reach location");
+                    return 3000;
+                }
+            }
+
+            // 5. Location-specific antiban
+            if (locationManager != null && locationManager.requiresExtraAntiban()) {
+                if (BotUtils.random(0, 100) < 10) { // 10% chance per loop
+                    locationManager.performLocationAntiban();
+                }
+            }
+
+            // 6. Update anti-ban system
             updateAntibanSystem();
 
-            // Update overlay statistics
+            // 7. Update overlay statistics
             updateOverlayStatistics();
 
-            // Main bot logic using AlchingEngine
-            return executeAlchingEngine();
+            // 8. Main bot logic using AlchingEngine
+            int delay = executeAlchingEngine();
+
+            // 9. Apply location-specific delay multiplier
+            if (locationManager != null) {
+                double multiplier = locationManager.getDelayMultiplier();
+                delay = (int)(delay * multiplier);
+            }
+
+            return delay;
 
         } catch (Exception e) {
             BotUtils.logError("Error in main bot loop", e);
@@ -130,6 +186,17 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
             // Stop bot if running
             if (botRunning) {
                 stopBotExecution();
+            }
+
+            // Export final session summary
+            if (totalAlchs > 0) {
+                exportSessionSummary();
+                BotUtils.log("📊 Final session data exported");
+            }
+
+            // Generate daily report if CSV exporter exists
+            if (csvExporter != null) {
+                csvExporter.generateDailyReport();
             }
 
             // Send final Discord notification
@@ -200,7 +267,37 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
             settingsManager = new SettingsManager();
             BotUtils.log("💾 SettingsManager initialized");
 
-            BotUtils.log("✅ All components initialized successfully");
+            // Initialize NEW professional features
+            BotUtils.log("🚀 Initializing professional features...");
+
+            // Session Goals Manager
+            goalsManager = new SessionGoalsManager(discordManager);
+            BotUtils.log("🎯 SessionGoalsManager initialized");
+
+            // Bank Manager
+            bankManager = new BankManager();
+            BotUtils.log("🏦 BankManager initialized");
+
+            // Location Manager
+            locationManager = new LocationManager(antibanSystem);
+            BotUtils.log("📍 LocationManager initialized");
+
+            // CSV Exporter
+            csvExporter = new CSVExporter();
+            csvExporter.setAutoExport(true);
+            BotUtils.log("📊 CSVExporter initialized (auto-export enabled)");
+
+            // GE Slot Manager
+            geSlotManager = new GESlotManager();
+            geSlotManager.setAutoCollect(true);
+            geSlotManager.setAutoCancelStuck(true);
+            BotUtils.log("🏪 GESlotManager initialized (auto-management enabled)");
+
+            // Profile Manager
+            profileManager = new ProfileManager();
+            BotUtils.log("💾 ProfileManager initialized");
+
+            BotUtils.log("✅ All components (including professional features) initialized successfully");
 
         } catch (Exception e) {
             BotUtils.logError("Error initializing components", e);
@@ -288,11 +385,82 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     }
 
     /**
+     * Update GE Slot Manager
+     */
+    private void updateGESlotManager() {
+        try {
+            if (geSlotManager != null) {
+                // Check if we're at GE/bank
+                if (org.dreambot.api.methods.grandexchange.GrandExchange.isOpen()) {
+                    geSlotManager.updateSlotStatuses();
+                    geSlotManager.processPurchaseQueue();
+
+                    // Log slot summary occasionally
+                    if (BotUtils.random(0, 100) < 5) { // 5% chance
+                        BotUtils.log("🏪 " + geSlotManager.getSlotSummary());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            BotUtils.logError("Error updating GE slot manager", e);
+        }
+    }
+
+    /**
+     * Record an alch to CSV
+     */
+    private void recordAlchToCSV(String itemName, int itemId, int buyPrice, int alchValue, int profit) {
+        try {
+            if (csvExporter != null) {
+                csvExporter.recordAlch(itemName, itemId, buyPrice, alchValue, profit, 65);
+            }
+        } catch (Exception e) {
+            BotUtils.logError("Error recording alch to CSV", e);
+        }
+    }
+
+    /**
+     * Export session summary
+     */
+    private void exportSessionSummary() {
+        try {
+            if (csvExporter != null) {
+                CSVExporter.SessionSummary summary = new CSVExporter.SessionSummary();
+                summary.sessionStartTime = sessionStartTime;
+                summary.sessionEndTime = System.currentTimeMillis();
+                summary.itemName = currentConfig != null ? currentConfig.selectedItemName : "Unknown";
+                summary.totalAlchs = totalAlchs;
+                summary.totalProfit = totalProfit;
+                summary.totalXPGained = totalXpGained;
+
+                try {
+                    summary.startingLevel = Skills.getRealLevel(Skill.MAGIC);
+                    summary.endingLevel = Skills.getRealLevel(Skill.MAGIC);
+                } catch (Exception e) {
+                    summary.startingLevel = 55;
+                    summary.endingLevel = 55;
+                }
+
+                summary.location = locationManager != null ? locationManager.getCurrentLocation().getName() : "Grand Exchange";
+                summary.errorsEncountered = 0;
+
+                csvExporter.recordSession(summary);
+                BotUtils.log("📊 Session summary exported");
+            }
+        } catch (Exception e) {
+            BotUtils.logError("Error exporting session summary", e);
+        }
+    }
+
+    /**
      * Execute alchemy engine logic
      */
     private int executeAlchingEngine() {
         try {
             if (alchingEngine != null) {
+                // Store previous alch count
+                int previousAlchs = totalAlchs;
+
                 // Execute the alchemy engine's next action
                 int delay = alchingEngine.executeNextAction();
 
@@ -302,6 +470,17 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
                     totalAlchs = stats.alchsCompleted;
                     totalProfit = stats.totalProfit;
                     totalXpGained = stats.xpGained;
+
+                    // If we completed a new alch, record it to CSV
+                    if (totalAlchs > previousAlchs && currentConfig != null) {
+                        recordAlchToCSV(
+                            currentConfig.selectedItemName,
+                            currentConfig.selectedItemId,
+                            stats.currentBuyPrice,
+                            stats.currentAlchValue,
+                            stats.currentAlchValue - stats.currentBuyPrice - 220 // Approx profit
+                        );
+                    }
                 }
 
                 return delay;
@@ -673,7 +852,36 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
                 overlayRenderer.configure(config.selectedItemName, config.selectedItemId, true);
             }
 
-            BotUtils.log("✅ All components configured successfully");
+            // Configure NEW professional features
+            BotUtils.log("🚀 Configuring professional features...");
+
+            // Configure Session Goals (default: no goals set - runs indefinitely)
+            if (goalsManager != null) {
+                SessionGoalsManager.SessionGoals goals = new SessionGoalsManager.SessionGoals();
+                // Goals can be configured via GUI - for now use defaults (all disabled)
+                goalsManager.setGoals(goals);
+                BotUtils.log("🎯 Session goals configured (running indefinitely by default)");
+            }
+
+            // Configure Location Manager (default: Grand Exchange)
+            if (locationManager != null) {
+                locationManager.setLocation(LocationManager.AlchLocation.GRAND_EXCHANGE);
+                locationManager.setAutoNavigate(true);
+                BotUtils.log("📍 Location set to: Grand Exchange (auto-navigate enabled)");
+            }
+
+            // Configure Bank Manager (default: Grand Exchange)
+            if (bankManager != null) {
+                bankManager.setPreferredLocation(BankManager.BankLocation.GRAND_EXCHANGE);
+                bankManager.setHybridMode(true);
+                BotUtils.log("🏦 Bank location set to: Grand Exchange (hybrid mode enabled)");
+            }
+
+            // CSV Exporter already configured in initialization
+            // GE Slot Manager already configured in initialization
+            // Profile Manager already configured in initialization
+
+            BotUtils.log("✅ All components (including professional features) configured successfully");
 
         } catch (Exception e) {
             BotUtils.logError("Error configuring components", e);
