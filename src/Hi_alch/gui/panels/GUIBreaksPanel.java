@@ -1,4 +1,4 @@
-package Hi_alch;
+package Hi_alch.gui.panels;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;

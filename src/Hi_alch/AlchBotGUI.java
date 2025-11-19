@@ -17,6 +17,12 @@ import java.util.Arrays;
 
 // Import extracted GUI components
 import static Hi_alch.GUIStyles.*;
+import Hi_alch.gui.panels.MainConfigPanel;
+import Hi_alch.gui.panels.AdvancedSettingsPanel;
+import Hi_alch.gui.panels.GUIDataPanel;
+import Hi_alch.gui.panels.GUIMulePanel;
+import Hi_alch.gui.panels.GUISessionGoalsPanel;
+import Hi_alch.gui.panels.GUIBreaksPanel;
 
 /**
  * Professional High Alchemy Bot GUI - COMPLETE VERSION WITH ALL FIXES
@@ -44,105 +50,13 @@ public class AlchBotGUI {
     private JFrame frame;
     private JTabbedPane tabbedPane;
 
-    // Main Tab Components
-    private JComboBox<String> itemCategoryCombo;
-    private JComboBox<String> itemDropdown;
-    private JTextField customItemField;
-    private JButton validateItemButton;
-    private JSpinner buyLimitSpinner;
-    private JSpinner priceMarkupSpinner;
-    private JSpinner natureRuneSpinner;
-    private JCheckBox smartProfitCheck;
-    private JCheckBox worldHopCheck;
-    private JCheckBox alchConfigCheck;
-    private JCheckBox skipBuyingCheck;
-    private JCheckBox restockWhenEmptyCheck;
-    private JButton startButton;
-    private JButton stopButton;
-    private JLabel statusLabel;
-    private JLabel profitPreviewLabel;
-
-    // Settings Tab Components
-    private JTextField webhookField;
-    private JButton testWebhookButton;
-    private JCheckBox enableDiscordCheck;
-    private JCheckBox enableAntibanCheck;
-    private JSlider antibanAggressionSlider;
-    private JLabel aggressionValueLabel;
-    private JCheckBox breakSystemCheck;
-    private JSpinner minBreakSpinner;
-    private JSpinner maxBreakSpinner;
-    private JCheckBox fatigueSystemCheck;
-    private JCheckBox profileSeedingCheck;
-    private JTextField userProfileField;
-    private JButton generateSeedButton;
-    private JProgressBar fatigueBar;
-    private JLabel fatigueLabel;
-
-    // Data Tab Components - Using extracted GUIDataPanel
+    // Panel Components
+    private MainConfigPanel mainConfigPanel;
+    private AdvancedSettingsPanel advancedSettingsPanel;
     private GUIDataPanel guiDataPanel;
-
-    // Mule Tab Components - Using extracted GUIMulePanel
     private GUIMulePanel guiMulePanel;
-
-    // NEW PROFESSIONAL FEATURES PANELS
     private GUISessionGoalsPanel guiSessionGoalsPanel;
     private GUIBreaksPanel guiBreaksPanel;
-
-    // Helper components
-    private final List<JLabel> questionMarkLabels = new ArrayList<>();
-
-    // Store the found custom item ID
-    private int foundCustomItemId = -1;
-
-    // ===========================================
-    // ITEM CATEGORIES - F2P AND P2P
-    // ===========================================
-
-    // F2P High Alchemy Items (sorted by profit potential)
-    private static final String[] F2P_ITEMS = {
-            "Select F2P item...",
-            "Rune longsword",
-            "Rune battleaxe",
-            "Rune 2h sword",
-            "Rune platebody",
-            "Rune platelegs",
-            "Rune plateskirt",
-            "Rune chainbody",
-            "Rune med helm",
-            "Rune full helm",
-            "Rune sq shield",
-            "Rune kiteshield",
-            "Green d'hide body",
-            "Green d'hide chaps",
-            "Adamant platebody",
-            "Adamant platelegs",
-            "Custom F2P item..."
-    };
-
-    // P2P High Alchemy Items (sorted by profit potential)
-    private static final String[] P2P_ITEMS = {
-            "Select P2P item...",
-            "Dragon longsword",
-            "Dragon battleaxe",
-            "Dragon dagger",
-            "Dragon mace",
-            "Dragon scimitar",
-            "Dragon sword",
-            "Black d'hide body",
-            "Black d'hide chaps",
-            "Red d'hide body",
-            "Red d'hide chaps",
-            "Blue d'hide body",
-            "Blue d'hide chaps",
-            "Rune crossbow",
-            "Magic longbow",
-            "Yew longbow",
-            "Maple longbow",
-            "Splitbark body",
-            "Splitbark legs",
-            "Custom P2P item..."
-    };
 
     // ===========================================
     // EVENT HANDLING
@@ -278,12 +192,14 @@ public class AlchBotGUI {
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
         // Create all professional panels
-        JScrollPane mainScrollPane = new JScrollPane(createMainPanel());
+        mainConfigPanel = new MainConfigPanel();
+        JScrollPane mainScrollPane = new JScrollPane(mainConfigPanel);
         mainScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         mainScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         mainScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        JScrollPane settingsScrollPane = new JScrollPane(createSettingsPanel());
+        advancedSettingsPanel = new AdvancedSettingsPanel();
+        JScrollPane settingsScrollPane = new JScrollPane(advancedSettingsPanel);
         settingsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         settingsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         settingsScrollPane.getVerticalScrollBar().setUnitIncrement(16);
@@ -341,580 +257,39 @@ public class AlchBotGUI {
     }
 
     // ===========================================
-    // MAIN PANEL - CONFIGURATION TAB
-    // ===========================================
-
-    /**
-     * Create main configuration panel with professional layout
-     */
-    private JPanel createMainPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-        panel.add(createItemSelectionPanel());
-        panel.add(Box.createVerticalStrut(20));
-        panel.add(createTradingConfigPanel());
-        panel.add(Box.createVerticalStrut(20));
-        panel.add(createBotFeaturesPanel());
-        panel.add(Box.createVerticalStrut(20));
-        panel.add(createProfitPreviewPanel());
-        panel.add(Box.createVerticalStrut(20));
-        panel.add(createControlButtonsPanel());
-        panel.add(Box.createVerticalStrut(15));
-        panel.add(createStatusPanel());
-
-        return panel;
-    }
-
-    /**
-     * Create professional item selection panel
-     */
-    private JPanel createItemSelectionPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(createProfessionalBorder("Item Selection"));
-
-        // Category selection
-        JPanel categoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-        JLabel categoryLabel = createStyledLabel("Category:");
-        categoryPanel.add(categoryLabel);
-        categoryPanel.add(createQuestionMark("Choose between F2P (free-to-play) or P2P (members) items"));
-
-        String[] categories = {"F2P Items", "P2P Items"};
-        itemCategoryCombo = new JComboBox<>(categories);
-        itemCategoryCombo.setPreferredSize(new Dimension(120, 30));
-        styleComboBox(itemCategoryCombo);
-        categoryPanel.add(itemCategoryCombo);
-
-        // Item selection
-        JPanel itemPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-        JLabel itemLabel = createStyledLabel("Item:");
-        itemPanel.add(itemLabel);
-        itemPanel.add(createQuestionMark("Select an item with good high alchemy profit potential"));
-
-        itemDropdown = new JComboBox<>(F2P_ITEMS);
-        itemDropdown.setPreferredSize(new Dimension(200, 30));
-        styleComboBox(itemDropdown);
-        itemPanel.add(itemDropdown);
-
-        // Custom item field (initially hidden)
-        customItemField = new JTextField(15);
-        customItemField.setVisible(false);
-        customItemField.setToolTipText("Enter custom item name or ID");
-        styleTextField(customItemField);
-
-        validateItemButton = new JButton("✓ Validate");
-        validateItemButton.setVisible(false);
-        validateItemButton.setPreferredSize(new Dimension(90, 30));
-        styleButton(validateItemButton, new Color(76, 175, 80));
-
-        JPanel customPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        customPanel.add(customItemField);
-        customPanel.add(validateItemButton);
-
-        panel.add(categoryPanel, BorderLayout.NORTH);
-        panel.add(itemPanel, BorderLayout.CENTER);
-        panel.add(customPanel, BorderLayout.SOUTH);
-
-        return panel;
-    }
-
-    /**
-     * Create professional trading configuration panel
-     */
-    private JPanel createTradingConfigPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(createProfessionalBorder("Trading Configuration"));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // Buy Limit
-        gbc.gridx = 0; gbc.gridy = 0;
-        JLabel buyLimitLabel = createStyledLabel("Buy Limit:");
-        panel.add(buyLimitLabel, gbc);
-
-        gbc.gridx = 1;
-        panel.add(createQuestionMark("Maximum number of items to buy from Grand Exchange per 4-hour period. Each item has a different buy limit (usually 100-1000). Exceeding this will prevent further purchases."), gbc);
-
-        gbc.gridx = 2;
-        buyLimitSpinner = new JSpinner(new SpinnerNumberModel(100, 1, 10000, 10));
-        buyLimitSpinner.setPreferredSize(new Dimension(100, 30));
-        styleSpinner(buyLimitSpinner);
-        panel.add(buyLimitSpinner, gbc);
-
-        // Price Markup
-        gbc.gridx = 0; gbc.gridy = 1;
-        JLabel markupLabel = createStyledLabel("Price Markup:");
-        panel.add(markupLabel, gbc);
-
-        gbc.gridx = 1;
-        panel.add(createQuestionMark("Percentage above current market price to offer. Higher markup = faster purchase but higher cost. 5-10% is usually optimal for quick buying without overpaying significantly."), gbc);
-
-        gbc.gridx = 2;
-        priceMarkupSpinner = new JSpinner(new SpinnerNumberModel(5.0, 0.0, 50.0, 0.5));
-        priceMarkupSpinner.setPreferredSize(new Dimension(100, 30));
-        styleSpinner(priceMarkupSpinner);
-        panel.add(priceMarkupSpinner, gbc);
-
-        gbc.gridx = 3;
-        JLabel percentLabel = createStyledLabel("%");
-        panel.add(percentLabel, gbc);
-
-        // Nature Runes
-        gbc.gridx = 0; gbc.gridy = 2;
-        JLabel runesLabel = createStyledLabel("Nature Runes:");
-        panel.add(runesLabel, gbc);
-
-        gbc.gridx = 1;
-        panel.add(createQuestionMark("Number of nature runes to purchase for High Level Alchemy. Each alch requires 1 nature rune + fire staff/runes. 1000 runes = 1000 alchs. Buy in bulk for better prices."), gbc);
-
-        gbc.gridx = 2;
-        natureRuneSpinner = new JSpinner(new SpinnerNumberModel(1000, 100, 10000, 100));
-        natureRuneSpinner.setPreferredSize(new Dimension(100, 30));
-        styleSpinner(natureRuneSpinner);
-        panel.add(natureRuneSpinner, gbc);
-
-        return panel;
-    }
-
-    /**
-     * Create professional bot features panel
-     */
-    private JPanel createBotFeaturesPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(createProfessionalBorder("Bot Features & Configuration"));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 10, 8, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // Smart Profit Analysis
-        gbc.gridx = 0; gbc.gridy = 0;
-        smartProfitCheck = new JCheckBox("Smart Profit Analysis");
-        smartProfitCheck.setSelected(true);
-        styleCheckBox(smartProfitCheck);
-        panel.add(smartProfitCheck, gbc);
-
-        gbc.gridx = 1;
-        panel.add(createQuestionMark("Automatically calculates real-time profit margins using live market data before each alching session. Prevents losses from market fluctuations."), gbc);
-
-        // World Hopping
-        gbc.gridx = 0; gbc.gridy = 1;
-        worldHopCheck = new JCheckBox("World Hopping");
-        styleCheckBox(worldHopCheck);
-        panel.add(worldHopCheck, gbc);
-
-        gbc.gridx = 1;
-        panel.add(createQuestionMark("Automatically changes worlds if Grand Exchange offers take too long to complete. Improves buying efficiency and reduces wait times."), gbc);
-
-        // Alchemy Configuration
-        gbc.gridx = 0; gbc.gridy = 2;
-        alchConfigCheck = new JCheckBox("Auto-Configure High Alchemy");
-        alchConfigCheck.setSelected(true);
-        styleCheckBox(alchConfigCheck);
-        panel.add(alchConfigCheck, gbc);
-
-        gbc.gridx = 1;
-        panel.add(createQuestionMark("Automatically right-clicks High Level Alchemy spell to configure the warning threshold above 10M GP. Prevents confirmation dialogs during alching."), gbc);
-
-        // Skip Buying Toggle
-        gbc.gridx = 0; gbc.gridy = 3;
-        skipBuyingCheck = new JCheckBox("Items Already in Inventory");
-        skipBuyingCheck.setToolTipText("Skip Grand Exchange buying if items are already in inventory");
-        styleCheckBox(skipBuyingCheck);
-        panel.add(skipBuyingCheck, gbc);
-
-        gbc.gridx = 1;
-        panel.add(createQuestionMark("Enable this if you already have items in your inventory and want to skip the Grand Exchange buying phase. Bot will start alching immediately."), gbc);
-
-        // Restock When Empty Toggle
-        gbc.gridx = 0; gbc.gridy = 4;
-        restockWhenEmptyCheck = new JCheckBox("Restock When Empty");
-        restockWhenEmptyCheck.setEnabled(false); // Disabled by default
-        restockWhenEmptyCheck.setToolTipText("When enabled, bot will buy more items when inventory runs out");
-        styleCheckBox(restockWhenEmptyCheck);
-        panel.add(restockWhenEmptyCheck, gbc);
-
-        gbc.gridx = 1;
-        panel.add(createQuestionMark("When enabled, the bot will buy more items from GE when inventory runs out. When disabled, bot stops when all items are alched."), gbc);
-
-        return panel;
-    }
-
-    /**
-     * Create profit preview panel
-     */
-    private JPanel createProfitPreviewPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(createProfessionalBorder("Profit Preview"));
-
-        profitPreviewLabel = new JLabel("Select an item to see profit analysis", JLabel.CENTER);
-        profitPreviewLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        profitPreviewLabel.setForeground(new Color(255, 215, 0));
-        profitPreviewLabel.setBorder(new EmptyBorder(15, 15, 15, 15));
-
-        panel.add(profitPreviewLabel, BorderLayout.CENTER);
-
-        return panel;
-    }
-
-    /**
-     * Create professional control buttons panel
-     */
-    private JPanel createControlButtonsPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
-
-        startButton = new JButton("Start High Alchemy Bot");
-        startButton.setPreferredSize(new Dimension(180, 45));
-        startButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        styleButton(startButton, new Color(76, 175, 80));
-
-        stopButton = new JButton("Stop Bot");
-        stopButton.setPreferredSize(new Dimension(120, 45));
-        stopButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        stopButton.setEnabled(false);
-        styleButton(stopButton, new Color(244, 67, 54));
-
-        panel.add(startButton);
-        panel.add(stopButton);
-
-        return panel;
-    }
-
-    /**
-     * Create professional status panel
-     */
-    private JPanel createStatusPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(createProfessionalBorder("Bot Status"));
-
-        statusLabel = new JLabel("Ready to start - Configure your settings above", JLabel.CENTER);
-        statusLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        statusLabel.setBorder(new EmptyBorder(15, 15, 15, 15));
-
-        panel.add(statusLabel, BorderLayout.CENTER);
-
-        return panel;
-    }
-
-    // ===========================================
-    // SETTINGS PANEL - ADVANCED TAB
-    // ===========================================
-
-    /**
-     * Create professional settings panel
-     */
-    private JPanel createSettingsPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-        panel.add(createAntibanSettingsPanel());
-        panel.add(Box.createVerticalStrut(20));
-        panel.add(createDiscordIntegrationPanel());
-
-        return panel;
-    }
-
-    /**
-     * Create professional anti-ban settings panel
-     */
-    private JPanel createAntibanSettingsPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 20));
-        panel.setBorder(createProfessionalBorder("Advanced Anti-ban Protection System"));
-
-        JPanel settingsPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 10, 8, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // Enable anti-ban
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        enableAntibanCheck = new JCheckBox("Enable Advanced Anti-ban System");
-        enableAntibanCheck.setSelected(true);
-        styleCheckBox(enableAntibanCheck);
-        settingsPanel.add(enableAntibanCheck, gbc);
-
-        gbc.gridx = 2; gbc.gridwidth = 1;
-        settingsPanel.add(createQuestionMark("Enables comprehensive human-like behavior patterns including camera movements, tab checking, mouse variations, break scheduling, and fatigue-based adjustments."), gbc);
-
-        // Profile-based seeding
-        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
-        profileSeedingCheck = new JCheckBox("User Profile-Based Anti-ban Seeding");
-        profileSeedingCheck.setSelected(true);
-        styleCheckBox(profileSeedingCheck);
-        settingsPanel.add(profileSeedingCheck, gbc);
-
-        gbc.gridx = 2; gbc.gridwidth = 1;
-        settingsPanel.add(createQuestionMark("Personalizes anti-ban patterns based on your unique user profile. Creates realistic behavior patterns specific to your account characteristics and playstyle."), gbc);
-
-        // User profile field
-        gbc.gridx = 0; gbc.gridy = 2;
-        JLabel profileLabel = createStyledLabel("Profile Seed:");
-        settingsPanel.add(profileLabel, gbc);
-
-        gbc.gridx = 1;
-        userProfileField = new JTextField(12);
-        userProfileField.setToolTipText("Your unique profile identifier for personalized anti-ban");
-        styleTextField(userProfileField);
-        settingsPanel.add(userProfileField, gbc);
-
-        gbc.gridx = 2;
-        generateSeedButton = new JButton("Generate");
-        generateSeedButton.setPreferredSize(new Dimension(90, 25));
-        styleButton(generateSeedButton, new Color(156, 39, 176));
-        settingsPanel.add(generateSeedButton, gbc);
-
-        gbc.gridx = 3;
-        settingsPanel.add(createQuestionMark("Generates a unique seed based on your username, combat level, and account age. This personalizes anti-ban behavior to match your specific account profile."), gbc);
-
-        // Fatigue system
-        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
-        fatigueSystemCheck = new JCheckBox("Intelligent Fatigue System");
-        fatigueSystemCheck.setSelected(true);
-        styleCheckBox(fatigueSystemCheck);
-        settingsPanel.add(fatigueSystemCheck, gbc);
-
-        gbc.gridx = 2; gbc.gridwidth = 1;
-        settingsPanel.add(createQuestionMark("Monitors session length and adjusts behavior patterns as fatigue increases. Longer sessions result in more human-like mistakes, slower reactions, and increased break frequency."), gbc);
-
-        // Fatigue indicator
-        gbc.gridx = 0; gbc.gridy = 4;
-        fatigueLabel = createStyledLabel("Current Fatigue:");
-        settingsPanel.add(fatigueLabel, gbc);
-
-        gbc.gridx = 1; gbc.gridwidth = 2;
-        fatigueBar = new JProgressBar(0, 100);
-        fatigueBar.setStringPainted(true);
-        fatigueBar.setString("0% - Fresh & Alert");
-        fatigueBar.setForeground(new Color(76, 175, 80));
-        settingsPanel.add(fatigueBar, gbc);
-
-        gbc.gridx = 3; gbc.gridwidth = 1;
-        settingsPanel.add(createQuestionMark("Real-time fatigue level. As this increases, the bot becomes more human-like with slower reactions and more mistakes. Resets after breaks."), gbc);
-
-        // Aggression slider
-        gbc.gridx = 0; gbc.gridy = 5;
-        JLabel aggressionLabel = createStyledLabel("Behavior Aggression:");
-        settingsPanel.add(aggressionLabel, gbc);
-
-        gbc.gridx = 1;
-        settingsPanel.add(createQuestionMark("1 = Very human-like (slower, safer, more realistic) | 10 = Fast but riskier (fewer human behaviors, faster execution)"), gbc);
-
-        gbc.gridx = 2;
-        aggressionValueLabel = createStyledLabel("Level: 5 (Balanced)");
-        aggressionValueLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        aggressionValueLabel.setForeground(new Color(255, 215, 0));
-        settingsPanel.add(aggressionValueLabel, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 6; gbc.gridwidth = 4; gbc.fill = GridBagConstraints.HORIZONTAL;
-        antibanAggressionSlider = new JSlider(1, 10, 5);
-        antibanAggressionSlider.setMajorTickSpacing(3);
-        antibanAggressionSlider.setMinorTickSpacing(1);
-        antibanAggressionSlider.setPaintTicks(true);
-        antibanAggressionSlider.setPaintLabels(true);
-        settingsPanel.add(antibanAggressionSlider, gbc);
-
-        // Break system
-        gbc.gridx = 0; gbc.gridy = 7; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.NONE;
-        breakSystemCheck = new JCheckBox("Intelligent Break System");
-        breakSystemCheck.setSelected(true);
-        styleCheckBox(breakSystemCheck);
-        settingsPanel.add(breakSystemCheck, gbc);
-
-        gbc.gridx = 2; gbc.gridwidth = 1;
-        settingsPanel.add(createQuestionMark("Takes random breaks based on session length, fatigue level, and personalized patterns. Break frequency increases with fatigue and user profile preferences."), gbc);
-
-        // Break timing
-        gbc.gridx = 0; gbc.gridy = 8;
-        JLabel minBreakLabel = createStyledLabel("Break Range:");
-        settingsPanel.add(minBreakLabel, gbc);
-
-        gbc.gridx = 1;
-        JPanel breakRangePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-
-        minBreakSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 30, 1));
-        minBreakSpinner.setPreferredSize(new Dimension(60, 25));
-        styleSpinner(minBreakSpinner);
-        breakRangePanel.add(minBreakSpinner);
-
-        breakRangePanel.add(createStyledLabel(" to "));
-
-        maxBreakSpinner = new JSpinner(new SpinnerNumberModel(15, 1, 60, 1));
-        maxBreakSpinner.setPreferredSize(new Dimension(60, 25));
-        styleSpinner(maxBreakSpinner);
-        breakRangePanel.add(maxBreakSpinner);
-
-        breakRangePanel.add(createStyledLabel(" minutes"));
-
-        settingsPanel.add(breakRangePanel, gbc);
-
-        gbc.gridx = 2;
-        settingsPanel.add(createQuestionMark("Random break duration range. Actual break time is influenced by current fatigue level and user profile patterns. Higher fatigue = longer breaks."), gbc);
-
-        panel.add(settingsPanel, BorderLayout.CENTER);
-
-        return panel;
-    }
-
-    /**
-     * Create professional Discord integration panel
-     */
-    private JPanel createDiscordIntegrationPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 15));
-        panel.setBorder(createProfessionalBorder("Discord Integration"));
-
-        JPanel enablePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-        enableDiscordCheck = new JCheckBox("Enable Discord Notifications");
-        styleCheckBox(enableDiscordCheck);
-        enablePanel.add(enableDiscordCheck);
-        enablePanel.add(createQuestionMark("Receive bot status updates and alerts in your Discord channel"));
-
-        JPanel webhookPanel = new JPanel(new BorderLayout(5, 5));
-
-        JPanel webhookLabelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-        JLabel webhookLabel = createStyledLabel("Webhook URL:");
-        webhookLabelPanel.add(webhookLabel);
-        webhookLabelPanel.add(createQuestionMark("Discord webhook URL for sending notifications"));
-
-        webhookField = new JTextField();
-        webhookField.setToolTipText("https://discord.com/api/webhooks/YOUR_WEBHOOK_URL");
-        styleTextField(webhookField);
-
-        testWebhookButton = new JButton("Test");
-        testWebhookButton.setPreferredSize(new Dimension(80, 30));
-        styleButton(testWebhookButton, new Color(114, 137, 218));
-
-        JPanel webhookFieldPanel = new JPanel(new BorderLayout());
-        webhookFieldPanel.add(webhookField, BorderLayout.CENTER);
-        webhookFieldPanel.add(testWebhookButton, BorderLayout.EAST);
-
-        webhookPanel.add(webhookLabelPanel, BorderLayout.NORTH);
-        webhookPanel.add(webhookFieldPanel, BorderLayout.CENTER);
-
-        panel.add(enablePanel, BorderLayout.NORTH);
-        panel.add(webhookPanel, BorderLayout.CENTER);
-
-        return panel;
-    }
-
-    // ===========================================
-    // DATA PANEL - ANALYTICS TAB
-    // ===========================================
-
-    // ===========================================
-    // STYLING METHODS - SUBSTANCE COMPATIBLE
+    // STYLING METHODS (delegated to GUIStyles)
     // ===========================================
 
     private TitledBorder createProfessionalBorder(String title) {
-        TitledBorder border = BorderFactory.createTitledBorder(title);
-        border.setTitleColor(new Color(64, 128, 255));
-        border.setTitleFont(new Font("Segoe UI", Font.BOLD, 13));
-        border.setBorder(BorderFactory.createLineBorder(new Color(64, 128, 255), 1));
-        return border;
+        return GUIStyles.createProfessionalBorder(title);
     }
 
     private JLabel createStyledLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font("Inter", Font.PLAIN, 13));
-        return label;
+        return GUIStyles.createStyledLabel(text);
     }
 
     private JLabel createQuestionMark(String tooltipText) {
-        final JLabel questionMark = new JLabel("[?]");
-        questionMark.setFont(new Font("Inter", Font.BOLD, 12));
-        questionMark.setForeground(new Color(96, 165, 250));
-        questionMark.setToolTipText("<html><div style='width: 300px; font-family: Inter;'>" + tooltipText + "</div></html>");
-        questionMark.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        questionMark.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
-
-        questionMark.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                JLabel source = (JLabel) e.getSource();
-                source.setForeground(new Color(147, 197, 253));
-                source.setText("【?】");
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                JLabel source = (JLabel) e.getSource();
-                source.setForeground(new Color(96, 165, 250));
-                source.setText("[?]");
-            }
-        });
-
-        questionMarkLabels.add(questionMark);
-        return questionMark;
+        return GUIStyles.createQuestionMark(tooltipText);
     }
 
     private void styleTextField(JTextField field) {
-        field.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        field.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(100, 100, 100)),
-                BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
+        GUIStyles.styleTextField(field);
     }
 
     private void styleComboBox(JComboBox<?> comboBox) {
-        comboBox.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        GUIStyles.styleComboBox(comboBox);
     }
 
     private void styleSpinner(JSpinner spinner) {
-        spinner.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        GUIStyles.styleSpinner(spinner);
     }
 
     private void styleCheckBox(JCheckBox checkBox) {
-        checkBox.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        checkBox.setFocusPainted(false);
+        GUIStyles.styleCheckBox(checkBox);
     }
 
     private void styleButton(JButton button, Color color) {
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Inter", Font.BOLD, 13));
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setOpaque(true);
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(8, 16, 8, 16),
-                BorderFactory.createLineBorder(color.darker(), 1, true)
-        ));
-
-        button.putClientProperty("originalColor", color);
-
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                JButton sourceButton = (JButton) e.getSource();
-                Color originalColor = (Color) sourceButton.getClientProperty("originalColor");
-                if (originalColor != null) {
-                    Color hoverColor = new Color(
-                            Math.min(255, originalColor.getRed() + 20),
-                            Math.min(255, originalColor.getGreen() + 20),
-                            Math.min(255, originalColor.getBlue() + 20)
-                    );
-                    sourceButton.setBackground(hoverColor);
-                }
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                JButton sourceButton = (JButton) e.getSource();
-                Color originalColor = (Color) sourceButton.getClientProperty("originalColor");
-                if (originalColor != null) {
-                    sourceButton.setBackground(originalColor);
-                }
-            }
-        });
+        GUIStyles.styleButton(button, color);
     }
 
     // ===========================================
@@ -938,8 +313,8 @@ public class AlchBotGUI {
             }
 
             // Update specific spinners visibility
-            if (buyLimitSpinner != null && buyLimitSpinner.getParent() != null) {
-                Component parent = buyLimitSpinner.getParent();
+            if (mainConfigPanel.getBuyLimitSpinner() != null && mainConfigPanel.getBuyLimitSpinner().getParent() != null) {
+                Component parent = mainConfigPanel.getBuyLimitSpinner().getParent();
                 while (parent != null && !(parent instanceof JPanel)) {
                     parent = parent.getParent();
                 }
@@ -999,24 +374,24 @@ public class AlchBotGUI {
      */
     private void setupEventHandlers() {
         // Category selection handler
-        itemCategoryCombo.addActionListener(e -> {
-            String selected = (String) itemCategoryCombo.getSelectedItem();
+        mainConfigPanel.getItemCategoryCombo().addActionListener(e -> {
+            String selected = (String) mainConfigPanel.getItemCategoryCombo().getSelectedItem();
             if ("F2P Items".equals(selected)) {
-                itemDropdown.setModel(new DefaultComboBoxModel<>(F2P_ITEMS));
+                mainConfigPanel.getItemDropdown().setModel(new DefaultComboBoxModel<>(mainConfigPanel.getF2PItems()));
             } else {
-                itemDropdown.setModel(new DefaultComboBoxModel<>(P2P_ITEMS));
+                mainConfigPanel.getItemDropdown().setModel(new DefaultComboBoxModel<>(mainConfigPanel.getP2PItems()));
             }
-            itemDropdown.setSelectedIndex(0);
+            mainConfigPanel.getItemDropdown().setSelectedIndex(0);
             updateProfitPreview();
         });
 
         // Item dropdown change handler
-        itemDropdown.addActionListener(e -> {
-            String selected = (String) itemDropdown.getSelectedItem();
+        mainConfigPanel.getItemDropdown().addActionListener(e -> {
+            String selected = (String) mainConfigPanel.getItemDropdown().getSelectedItem();
             boolean isCustom = selected != null && selected.contains("Custom");
 
-            customItemField.setVisible(isCustom);
-            validateItemButton.setVisible(isCustom);
+            mainConfigPanel.getCustomItemField().setVisible(isCustom);
+            mainConfigPanel.getValidateItemButton().setVisible(isCustom);
 
             frame.revalidate();
             frame.repaint();
@@ -1029,15 +404,15 @@ public class AlchBotGUI {
         });
 
         // Custom item validation
-        validateItemButton.addActionListener(e -> {
-            String customItem = customItemField.getText().trim();
+        mainConfigPanel.getValidateItemButton().addActionListener(e -> {
+            String customItem = mainConfigPanel.getCustomItemField().getText().trim();
             if (customItem.isEmpty()) {
                 updateStatus("❌ Please enter an item name to validate");
                 return;
             }
 
-            validateItemButton.setEnabled(false);
-            validateItemButton.setText("⏳");
+            mainConfigPanel.getValidateItemButton().setEnabled(false);
+            mainConfigPanel.getValidateItemButton().setText("⏳");
 
             new Thread(() -> {
                 try {
@@ -1046,40 +421,40 @@ public class AlchBotGUI {
                     SwingUtilities.invokeLater(() -> {
                         if (isValid) {
                             updateStatus("✅ Item '" + customItem + "' validated successfully!");
-                            customItemField.setBackground(new Color(34, 197, 94, 50));
+                            mainConfigPanel.getCustomItemField().setBackground(new Color(34, 197, 94, 50));
                             if (eventListener != null) {
                                 eventListener.onItemSelected(customItem);
                             }
                             updateProfitPreview();
                         } else {
                             updateStatus("❌ Item '" + customItem + "' not found in OSRS database");
-                            customItemField.setBackground(new Color(239, 68, 68, 50));
+                            mainConfigPanel.getCustomItemField().setBackground(new Color(239, 68, 68, 50));
                         }
 
-                        validateItemButton.setEnabled(true);
-                        validateItemButton.setText("✓ Validate");
+                        mainConfigPanel.getValidateItemButton().setEnabled(true);
+                        mainConfigPanel.getValidateItemButton().setText("✓ Validate");
                     });
 
                 } catch (Exception ex) {
                     SwingUtilities.invokeLater(() -> {
                         updateStatus("❌ Error validating item: " + ex.getMessage());
-                        customItemField.setBackground(new Color(239, 68, 68, 50));
-                        validateItemButton.setEnabled(true);
-                        validateItemButton.setText("✓ Validate");
+                        mainConfigPanel.getCustomItemField().setBackground(new Color(239, 68, 68, 50));
+                        mainConfigPanel.getValidateItemButton().setEnabled(true);
+                        mainConfigPanel.getValidateItemButton().setText("✓ Validate");
                     });
                 }
             }).start();
         });
 
         // FIXED: Skip buying checkbox handler with panel toggling
-        skipBuyingCheck.addActionListener(e -> {
-            boolean skipBuyingEnabled = skipBuyingCheck.isSelected();
+        mainConfigPanel.getSkipBuyingCheck().addActionListener(e -> {
+            boolean skipBuyingEnabled = mainConfigPanel.getSkipBuyingCheck().isSelected();
 
             // Enable/disable restock checkbox
-            if (restockWhenEmptyCheck != null) {
-                restockWhenEmptyCheck.setEnabled(skipBuyingEnabled);
+            if (mainConfigPanel.getRestockWhenEmptyCheck() != null) {
+                mainConfigPanel.getRestockWhenEmptyCheck().setEnabled(skipBuyingEnabled);
                 if (!skipBuyingEnabled) {
-                    restockWhenEmptyCheck.setSelected(false);
+                    mainConfigPanel.getRestockWhenEmptyCheck().setSelected(false);
                 }
             }
 
@@ -1098,8 +473,8 @@ public class AlchBotGUI {
         });
 
         // Anti-ban aggression slider
-        antibanAggressionSlider.addChangeListener(e -> {
-            int value = antibanAggressionSlider.getValue();
+        advancedSettingsPanel.getAntibanAggressionSlider().addChangeListener(e -> {
+            int value = advancedSettingsPanel.getAntibanAggressionSlider().getValue();
             String description;
             Color color;
             if (value <= 3) {
@@ -1112,13 +487,13 @@ public class AlchBotGUI {
                 description = "Fast & Risky";
                 color = new Color(239, 68, 68);
             }
-            aggressionValueLabel.setText("Level: " + value + " (" + description + ")");
-            aggressionValueLabel.setForeground(color);
+            advancedSettingsPanel.getAggressionValueLabel().setText("Level: " + value + " (" + description + ")");
+            advancedSettingsPanel.getAggressionValueLabel().setForeground(color);
         });
 
         // Right-click alchemy configuration
-        alchConfigCheck.addActionListener(e -> {
-            boolean enabled = alchConfigCheck.isSelected();
+        mainConfigPanel.getAlchConfigCheck().addActionListener(e -> {
+            boolean enabled = mainConfigPanel.getAlchConfigCheck().isSelected();
             if (enabled) {
                 updateStatus("Right-click alchemy auto-configuration enabled");
                 BotUtils.log("✅ Auto-Configure High Alchemy enabled - will configure on bot start");
@@ -1133,9 +508,9 @@ public class AlchBotGUI {
         });
 
         // Generate Seed Button
-        generateSeedButton.addActionListener(e -> {
-            generateSeedButton.setEnabled(false);
-            generateSeedButton.setText("...");
+        advancedSettingsPanel.getGenerateSeedButton().addActionListener(e -> {
+            advancedSettingsPanel.getGenerateSeedButton().setEnabled(false);
+            advancedSettingsPanel.getGenerateSeedButton().setText("...");
 
             new Thread(() -> {
                 try {
@@ -1143,11 +518,11 @@ public class AlchBotGUI {
 
                     SwingUtilities.invokeLater(() -> {
                         String seed = generateUniqueProfileSeed();
-                        userProfileField.setText(seed);
+                        advancedSettingsPanel.getUserProfileField().setText(seed);
                         updateStatus("Generated personalized anti-ban seed: " + seed);
 
-                        generateSeedButton.setEnabled(true);
-                        generateSeedButton.setText("Generate");
+                        advancedSettingsPanel.getGenerateSeedButton().setEnabled(true);
+                        advancedSettingsPanel.getGenerateSeedButton().setText("Generate");
                     });
 
                 } catch (InterruptedException ex) {
@@ -1157,7 +532,7 @@ public class AlchBotGUI {
         });
 
         // Start/Stop button handlers
-        startButton.addActionListener(e -> {
+        mainConfigPanel.getStartButton().addActionListener(e -> {
             if (eventListener != null) {
                 GUIConfiguration config = getCurrentConfiguration();
                 eventListener.onStartBot(config);
@@ -1165,7 +540,7 @@ public class AlchBotGUI {
             }
         });
 
-        stopButton.addActionListener(e -> {
+        mainConfigPanel.getStopButton().addActionListener(e -> {
             if (eventListener != null) {
                 eventListener.onStopBot();
                 updateButtonStates(false);
@@ -1173,18 +548,18 @@ public class AlchBotGUI {
         });
 
         // Test webhook button
-        testWebhookButton.addActionListener(e -> testWebhookWithFeedback());
+        advancedSettingsPanel.getTestWebhookButton().addActionListener(e -> testWebhookWithFeedback());
 
         // Refresh data button (handled by GUIDataPanel now)
         // refreshDataButton is created and handled within GUIDataPanel
 
         // Configuration change handlers
-        buyLimitSpinner.addChangeListener(e -> {
+        mainConfigPanel.getBuyLimitSpinner().addChangeListener(e -> {
             updateProfitPreview();
             if (eventListener != null) eventListener.onConfigurationChanged();
         });
 
-        priceMarkupSpinner.addChangeListener(e -> {
+        mainConfigPanel.getPriceMarkupSpinner().addChangeListener(e -> {
             updateProfitPreview();
             if (eventListener != null) eventListener.onConfigurationChanged();
         });
@@ -1194,7 +569,7 @@ public class AlchBotGUI {
      * Test webhook with professional feedback
      */
     private void testWebhookWithFeedback() {
-        String webhookUrl = webhookField.getText().trim();
+        String webhookUrl = advancedSettingsPanel.getWebhookField().getText().trim();
 
         if (webhookUrl.isEmpty()) {
             JOptionPane.showMessageDialog(frame,
@@ -1204,8 +579,8 @@ public class AlchBotGUI {
             return;
         }
 
-        testWebhookButton.setEnabled(false);
-        testWebhookButton.setText("Testing...");
+        advancedSettingsPanel.getTestWebhookButton().setEnabled(false);
+        advancedSettingsPanel.getTestWebhookButton().setText("Testing...");
 
         new Thread(() -> {
             try {
@@ -1227,8 +602,8 @@ public class AlchBotGUI {
                             updateStatus("❌ Discord webhook test failed - check URL");
                         }
 
-                        testWebhookButton.setEnabled(true);
-                        testWebhookButton.setText("Test");
+                        advancedSettingsPanel.getTestWebhookButton().setEnabled(true);
+                        advancedSettingsPanel.getTestWebhookButton().setText("Test");
                     });
                 }
             } catch (Exception ex) {
@@ -1238,8 +613,8 @@ public class AlchBotGUI {
                             "Webhook Error",
                             JOptionPane.ERROR_MESSAGE);
 
-                    testWebhookButton.setEnabled(true);
-                    testWebhookButton.setText("Test");
+                    advancedSettingsPanel.getTestWebhookButton().setEnabled(true);
+                    advancedSettingsPanel.getTestWebhookButton().setText("Test");
                 });
             }
         }).start();
@@ -1250,27 +625,27 @@ public class AlchBotGUI {
      */
     private void updateProfitPreview() {
         try {
-            String selectedItem = (String) itemDropdown.getSelectedItem();
+            String selectedItem = (String) mainConfigPanel.getItemDropdown().getSelectedItem();
 
             if (selectedItem == null || selectedItem.startsWith("Select")) {
-                profitPreviewLabel.setText("Select an item to see real profit analysis");
-                profitPreviewLabel.setForeground(new Color(156, 163, 175));
+                mainConfigPanel.getProfitPreviewLabel().setText("Select an item to see real profit analysis");
+                mainConfigPanel.getProfitPreviewLabel().setForeground(new Color(156, 163, 175));
                 return;
             }
 
             if (selectedItem.contains("Custom")) {
-                String customItem = customItemField.getText().trim();
-                if (!customItem.isEmpty() && foundCustomItemId > 0) {
+                String customItem = mainConfigPanel.getCustomItemField().getText().trim();
+                if (!customItem.isEmpty() && mainConfigPanel.getFoundCustomItemId() > 0) {
                     selectedItem = customItem;
                 } else {
-                    profitPreviewLabel.setText("Enter and validate custom item for real-time analysis");
-                    profitPreviewLabel.setForeground(new Color(251, 191, 36));
+                    mainConfigPanel.getProfitPreviewLabel().setText("Enter and validate custom item for real-time analysis");
+                    mainConfigPanel.getProfitPreviewLabel().setForeground(new Color(251, 191, 36));
                     return;
                 }
             }
 
-            int buyLimit = (Integer) buyLimitSpinner.getValue();
-            double markup = (Double) priceMarkupSpinner.getValue();
+            int buyLimit = (Integer) mainConfigPanel.getBuyLimitSpinner().getValue();
+            double markup = (Double) mainConfigPanel.getPriceMarkupSpinner().getValue();
 
             ItemSearchAPI.ItemSearchResult apiData = ItemSearchAPI.searchItem(selectedItem);
 
@@ -1300,16 +675,16 @@ public class AlchBotGUI {
                     profitColor = new Color(239, 68, 68);
                 }
 
-                profitPreviewLabel.setText(profitText);
-                profitPreviewLabel.setForeground(profitColor);
+                mainConfigPanel.getProfitPreviewLabel().setText(profitText);
+                mainConfigPanel.getProfitPreviewLabel().setForeground(profitColor);
             } else {
-                profitPreviewLabel.setText("Unable to fetch live data for " + selectedItem);
-                profitPreviewLabel.setForeground(new Color(239, 68, 68));
+                mainConfigPanel.getProfitPreviewLabel().setText("Unable to fetch live data for " + selectedItem);
+                mainConfigPanel.getProfitPreviewLabel().setForeground(new Color(239, 68, 68));
             }
 
         } catch (Exception e) {
-            profitPreviewLabel.setText("Error calculating profit preview");
-            profitPreviewLabel.setForeground(new Color(239, 68, 68));
+            mainConfigPanel.getProfitPreviewLabel().setText("Error calculating profit preview");
+            mainConfigPanel.getProfitPreviewLabel().setForeground(new Color(239, 68, 68));
         }
     }
 
@@ -1401,19 +776,7 @@ public class AlchBotGUI {
      * Update status message
      */
     public void updateStatus(String status) {
-        if (statusLabel != null) {
-            SwingUtilities.invokeLater(() -> {
-                statusLabel.setText(status);
-
-                if (status.contains("✅") || status.contains("successful")) {
-                    statusLabel.setForeground(new Color(76, 175, 80));
-                } else if (status.contains("❌") || status.contains("failed") || status.contains("error")) {
-                    statusLabel.setForeground(new Color(244, 67, 54));
-                } else if (status.contains("🚀") || status.contains("running")) {
-                    statusLabel.setForeground(new Color(64, 128, 255));
-                }
-            });
-        }
+        mainConfigPanel.setStatus(status);
     }
 
     /**
@@ -1421,16 +784,16 @@ public class AlchBotGUI {
      */
     public void updateButtonStates(boolean botRunning) {
         SwingUtilities.invokeLater(() -> {
-            startButton.setEnabled(!botRunning);
-            stopButton.setEnabled(botRunning);
+            mainConfigPanel.getStartButton().setEnabled(!botRunning);
+            mainConfigPanel.getStopButton().setEnabled(botRunning);
 
             if (botRunning) {
                 updateStatus("High Alchemy Bot is running - Monitor progress in overlay");
-                startButton.setText("Bot Running...");
+                mainConfigPanel.getStartButton().setText("Bot Running...");
                 frame.setVisible(false);
             } else {
                 updateStatus("Bot stopped - Ready to start new session");
-                startButton.setText("Start High Alchemy Bot");
+                mainConfigPanel.getStartButton().setText("Start High Alchemy Bot");
                 frame.setVisible(true);
                 frame.toFront();
             }
@@ -1444,40 +807,40 @@ public class AlchBotGUI {
         GUIConfiguration config = new GUIConfiguration();
 
         // Get selected item
-        String selectedItem = (String) itemDropdown.getSelectedItem();
+        String selectedItem = (String) mainConfigPanel.getItemDropdown().getSelectedItem();
         if (selectedItem != null && selectedItem.contains("Custom")) {
-            config.selectedItemName = customItemField.getText().trim();
-            config.selectedItemId = foundCustomItemId;
+            config.selectedItemName = mainConfigPanel.getCustomItemField().getText().trim();
+            config.selectedItemId = mainConfigPanel.getFoundCustomItemId();
         } else {
             config.selectedItemName = selectedItem;
             config.selectedItemId = getItemIdFromName(config.selectedItemName);
         }
 
         // Get trading configuration
-        config.buyLimit = (Integer) buyLimitSpinner.getValue();
-        config.priceMarkup = (Double) priceMarkupSpinner.getValue();
-        config.natureRuneAmount = (Integer) natureRuneSpinner.getValue();
+        config.buyLimit = (Integer) mainConfigPanel.getBuyLimitSpinner().getValue();
+        config.priceMarkup = (Double) mainConfigPanel.getPriceMarkupSpinner().getValue();
+        config.natureRuneAmount = (Integer) mainConfigPanel.getNatureRuneSpinner().getValue();
 
         // Get bot features
-        config.smartProfitEnabled = smartProfitCheck.isSelected();
-        config.worldHopEnabled = worldHopCheck.isSelected();
-        config.alchConfigEnabled = alchConfigCheck.isSelected();
-        config.skipBuying = skipBuyingCheck.isSelected();
-        config.restockWhenEmpty = restockWhenEmptyCheck != null ? restockWhenEmptyCheck.isSelected() : false;
+        config.smartProfitEnabled = mainConfigPanel.getSmartProfitCheck().isSelected();
+        config.worldHopEnabled = mainConfigPanel.getWorldHopCheck().isSelected();
+        config.alchConfigEnabled = mainConfigPanel.getAlchConfigCheck().isSelected();
+        config.skipBuying = mainConfigPanel.getSkipBuyingCheck().isSelected();
+        config.restockWhenEmpty = mainConfigPanel.getRestockWhenEmptyCheck() != null ? mainConfigPanel.getRestockWhenEmptyCheck().isSelected() : false;
 
         // Get Discord settings
-        config.discordWebhookUrl = webhookField.getText().trim();
-        config.discordNotificationsEnabled = enableDiscordCheck.isSelected();
+        config.discordWebhookUrl = advancedSettingsPanel.getWebhookField().getText().trim();
+        config.discordNotificationsEnabled = advancedSettingsPanel.getEnableDiscordCheck().isSelected();
 
         // Get anti-ban settings
-        config.antibanEnabled = enableAntibanCheck.isSelected();
-        config.antibanAggression = antibanAggressionSlider.getValue();
-        config.breakSystemEnabled = breakSystemCheck.isSelected();
-        config.minBreakMinutes = (Integer) minBreakSpinner.getValue();
-        config.maxBreakMinutes = (Integer) maxBreakSpinner.getValue();
-        config.fatigueSystemEnabled = fatigueSystemCheck.isSelected();
-        config.profileSeedingEnabled = profileSeedingCheck.isSelected();
-        config.userProfileSeed = userProfileField.getText().trim();
+        config.antibanEnabled = advancedSettingsPanel.getEnableAntibanCheck().isSelected();
+        config.antibanAggression = advancedSettingsPanel.getAntibanAggressionSlider().getValue();
+        config.breakSystemEnabled = advancedSettingsPanel.getBreakSystemCheck().isSelected();
+        config.minBreakMinutes = (Integer) advancedSettingsPanel.getMinBreakSpinner().getValue();
+        config.maxBreakMinutes = (Integer) advancedSettingsPanel.getMaxBreakSpinner().getValue();
+        config.fatigueSystemEnabled = advancedSettingsPanel.getFatigueSystemCheck().isSelected();
+        config.profileSeedingEnabled = advancedSettingsPanel.getProfileSeedingCheck().isSelected();
+        config.userProfileSeed = advancedSettingsPanel.getUserProfileField().getText().trim();
 
         return config;
     }
@@ -1491,9 +854,9 @@ public class AlchBotGUI {
                 boolean foundInDropdown = false;
 
                 // Check current category items
-                for (int i = 0; i < itemDropdown.getItemCount(); i++) {
-                    if (config.selectedItemName.equals(itemDropdown.getItemAt(i))) {
-                        itemDropdown.setSelectedIndex(i);
+                for (int i = 0; i < mainConfigPanel.getItemDropdown().getItemCount(); i++) {
+                    if (config.selectedItemName.equals(mainConfigPanel.getItemDropdown().getItemAt(i))) {
+                        mainConfigPanel.getItemDropdown().setSelectedIndex(i);
                         foundInDropdown = true;
                         break;
                     }
@@ -1501,13 +864,13 @@ public class AlchBotGUI {
 
                 // If not found, check other category
                 if (!foundInDropdown) {
-                    String currentCategory = (String) itemCategoryCombo.getSelectedItem();
+                    String currentCategory = (String) mainConfigPanel.getItemCategoryCombo().getSelectedItem();
                     String otherCategory = "F2P Items".equals(currentCategory) ? "P2P Items" : "F2P Items";
-                    itemCategoryCombo.setSelectedItem(otherCategory);
+                    mainConfigPanel.getItemCategoryCombo().setSelectedItem(otherCategory);
 
-                    for (int i = 0; i < itemDropdown.getItemCount(); i++) {
-                        if (config.selectedItemName.equals(itemDropdown.getItemAt(i))) {
-                            itemDropdown.setSelectedIndex(i);
+                    for (int i = 0; i < mainConfigPanel.getItemDropdown().getItemCount(); i++) {
+                        if (config.selectedItemName.equals(mainConfigPanel.getItemDropdown().getItemAt(i))) {
+                            mainConfigPanel.getItemDropdown().setSelectedIndex(i);
                             foundInDropdown = true;
                             break;
                         }
@@ -1516,40 +879,40 @@ public class AlchBotGUI {
 
                 // If still not found, use custom
                 if (!foundInDropdown) {
-                    itemDropdown.setSelectedItem(itemDropdown.getItemAt(itemDropdown.getItemCount() - 1));
-                    customItemField.setText(config.selectedItemName);
-                    customItemField.setVisible(true);
-                    validateItemButton.setVisible(true);
+                    mainConfigPanel.getItemDropdown().setSelectedItem(mainConfigPanel.getItemDropdown().getItemAt(mainConfigPanel.getItemDropdown().getItemCount() - 1));
+                    mainConfigPanel.getCustomItemField().setText(config.selectedItemName);
+                    mainConfigPanel.getCustomItemField().setVisible(true);
+                    mainConfigPanel.getValidateItemButton().setVisible(true);
                 }
             }
 
             // Set trading configuration
-            buyLimitSpinner.setValue(config.buyLimit);
-            priceMarkupSpinner.setValue(config.priceMarkup);
-            natureRuneSpinner.setValue(config.natureRuneAmount);
+            mainConfigPanel.getBuyLimitSpinner().setValue(config.buyLimit);
+            mainConfigPanel.getPriceMarkupSpinner().setValue(config.priceMarkup);
+            mainConfigPanel.getNatureRuneSpinner().setValue(config.natureRuneAmount);
 
             // Set bot features
-            smartProfitCheck.setSelected(config.smartProfitEnabled);
-            worldHopCheck.setSelected(config.worldHopEnabled);
-            alchConfigCheck.setSelected(config.alchConfigEnabled);
-            skipBuyingCheck.setSelected(config.skipBuying);
+            mainConfigPanel.getSmartProfitCheck().setSelected(config.smartProfitEnabled);
+            mainConfigPanel.getWorldHopCheck().setSelected(config.worldHopEnabled);
+            mainConfigPanel.getAlchConfigCheck().setSelected(config.alchConfigEnabled);
+            mainConfigPanel.getSkipBuyingCheck().setSelected(config.skipBuying);
 
             // Set Discord settings
             if (config.discordWebhookUrl != null) {
-                webhookField.setText(config.discordWebhookUrl);
+                advancedSettingsPanel.getWebhookField().setText(config.discordWebhookUrl);
             }
-            enableDiscordCheck.setSelected(config.discordNotificationsEnabled);
+            advancedSettingsPanel.getEnableDiscordCheck().setSelected(config.discordNotificationsEnabled);
 
             // Set anti-ban settings
-            enableAntibanCheck.setSelected(config.antibanEnabled);
-            antibanAggressionSlider.setValue(config.antibanAggression);
-            breakSystemCheck.setSelected(config.breakSystemEnabled);
-            minBreakSpinner.setValue(config.minBreakMinutes);
-            maxBreakSpinner.setValue(config.maxBreakMinutes);
-            fatigueSystemCheck.setSelected(config.fatigueSystemEnabled);
-            profileSeedingCheck.setSelected(config.profileSeedingEnabled);
+            advancedSettingsPanel.getEnableAntibanCheck().setSelected(config.antibanEnabled);
+            advancedSettingsPanel.getAntibanAggressionSlider().setValue(config.antibanAggression);
+            advancedSettingsPanel.getBreakSystemCheck().setSelected(config.breakSystemEnabled);
+            advancedSettingsPanel.getMinBreakSpinner().setValue(config.minBreakMinutes);
+            advancedSettingsPanel.getMaxBreakSpinner().setValue(config.maxBreakMinutes);
+            advancedSettingsPanel.getFatigueSystemCheck().setSelected(config.fatigueSystemEnabled);
+            advancedSettingsPanel.getProfileSeedingCheck().setSelected(config.profileSeedingEnabled);
             if (config.userProfileSeed != null) {
-                userProfileField.setText(config.userProfileSeed);
+                advancedSettingsPanel.getUserProfileField().setText(config.userProfileSeed);
             }
 
             updateProfitPreview();
@@ -1577,33 +940,7 @@ public class AlchBotGUI {
      * Update fatigue level
      */
     public void updateFatigueLevel(int fatiguePercent) {
-        SwingUtilities.invokeLater(() -> {
-            int adjustedFatigue = Math.max(0, Math.min(100, fatiguePercent));
-            fatigueBar.setValue(adjustedFatigue);
-
-            String status;
-            Color color;
-
-            if (adjustedFatigue <= 20) {
-                status = "Fresh & Alert";
-                color = new Color(34, 197, 94);
-            } else if (adjustedFatigue <= 50) {
-                status = "Slightly Tired";
-                color = new Color(251, 191, 36);
-            } else if (adjustedFatigue <= 80) {
-                status = "Getting Tired";
-                color = new Color(249, 115, 22);
-            } else {
-                status = "Very Fatigued";
-                color = new Color(239, 68, 68);
-            }
-
-            fatigueBar.setString(adjustedFatigue + "% - " + status);
-            fatigueBar.setForeground(color);
-
-            fatigueLabel.setText("Current Fatigue: " + status);
-            fatigueLabel.setForeground(color);
-        });
+        advancedSettingsPanel.setFatigueLevel(fatiguePercent);
     }
 
     /**
@@ -1618,7 +955,7 @@ public class AlchBotGUI {
      * Check if right-click alchemy auto-configuration is enabled
      */
     public boolean isAlchemyConfigurationEnabled() {
-        return alchConfigCheck != null && alchConfigCheck.isSelected();
+        return mainConfigPanel.getAlchConfigCheck() != null && mainConfigPanel.getAlchConfigCheck().isSelected();
     }
 
     /**
@@ -1650,8 +987,8 @@ public class AlchBotGUI {
             if (result != null && result.isValid()) {
                 BotUtils.log("✅ Item found: " + result.toString());
 
-                customItemField.setText(result.itemName);
-                foundCustomItemId = result.itemId;
+                mainConfigPanel.getCustomItemField().setText(result.itemName);
+                mainConfigPanel.setFoundCustomItemId(result.itemId);
 
                 StringBuilder status = new StringBuilder();
                 status.append("✅ Found: ").append(result.itemName);
@@ -1667,7 +1004,7 @@ public class AlchBotGUI {
 
                 if (result.buyLimit > 0) {
                     status.append(", Limit: ").append(result.buyLimit);
-                    buyLimitSpinner.setValue(result.buyLimit);
+                    mainConfigPanel.getBuyLimitSpinner().setValue(result.buyLimit);
                 }
 
                 updateStatus(status.toString());
@@ -1676,7 +1013,7 @@ public class AlchBotGUI {
                 return true;
             } else {
                 BotUtils.log("❌ Item not found in OSRS database: " + cleanName);
-                foundCustomItemId = -1;
+                mainConfigPanel.setFoundCustomItemId(-1);
                 updateStatus("❌ Item '" + cleanName + "' not found in OSRS database");
                 return false;
             }
@@ -1748,8 +1085,6 @@ public class AlchBotGUI {
                 frame.setVisible(false);
                 frame.dispose();
             }
-
-            questionMarkLabels.clear();
 
             BotUtils.log("✅ GUI resources cleaned up successfully");
 
