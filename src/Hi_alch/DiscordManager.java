@@ -341,6 +341,68 @@ public class DiscordManager {
     }
 
     /**
+     * Send session goal reached notification
+     */
+    public void sendSessionGoalReached(int alchs, int profit, int xp, long runtimeMinutes,
+                                      int level, SessionGoalsManager.SessionGoals goals) {
+        if (!isEnabled || !notificationsEnabled) return;
+
+        try {
+            StringBuilder completedGoals = new StringBuilder();
+
+            if (goals.alchGoalEnabled && alchs >= goals.targetAlchs) {
+                completedGoals.append("✅ **Alchs**: ").append(BotUtils.formatNumber(alchs))
+                             .append("/").append(BotUtils.formatNumber(goals.targetAlchs)).append("\\n");
+            }
+            if (goals.profitGoalEnabled && profit >= goals.targetProfit) {
+                completedGoals.append("✅ **Profit**: ").append(BotUtils.formatNumber(profit))
+                             .append("/").append(BotUtils.formatNumber(goals.targetProfit)).append(" GP\\n");
+            }
+            if (goals.xpGoalEnabled && xp >= goals.targetXP) {
+                completedGoals.append("✅ **XP**: ").append(BotUtils.formatNumber(xp))
+                             .append("/").append(BotUtils.formatNumber(goals.targetXP)).append("\\n");
+            }
+            if (goals.timeGoalEnabled && runtimeMinutes >= goals.targetMinutes) {
+                completedGoals.append("✅ **Time**: ").append(runtimeMinutes)
+                             .append("/").append(goals.targetMinutes).append(" minutes\\n");
+            }
+            if (goals.levelGoalEnabled && level >= goals.targetLevel) {
+                completedGoals.append("✅ **Level**: ").append(level)
+                             .append("/").append(goals.targetLevel).append("\\n");
+            }
+
+            String message = "{\n" +
+                    "  \"embeds\": [{\n" +
+                    "    \"title\": \"🎯 Session Goal Reached!\",\n" +
+                    "    \"description\": \"Your session goals have been completed!\",\n" +
+                    "    \"color\": 65280,\n" +
+                    "    \"fields\": [\n" +
+                    "      {\n" +
+                    "        \"name\": \"Completed Goals\",\n" +
+                    "        \"value\": \"" + completedGoals.toString() + "\",\n" +
+                    "        \"inline\": false\n" +
+                    "      },\n" +
+                    "      {\n" +
+                    "        \"name\": \"🏆 Achievement\",\n" +
+                    "        \"value\": \"" + (goals.useAndLogic ? "ALL goals completed!" : "Goal reached!") + "\",\n" +
+                    "        \"inline\": false\n" +
+                    "      }\n" +
+                    "    ],\n" +
+                    "    \"footer\": {\n" +
+                    "      \"text\": \"Hi-Alch Bot | " + DATE_FORMAT.format(new Date()) + "\"\n" +
+                    "    }\n" +
+                    "  }]\n" +
+                    "}";
+
+            sendMessage(message);
+            BotUtils.log("📨 Session goal notification sent to Discord");
+
+        } catch (Exception e) {
+            BotUtils.logError("Error sending session goal notification", e);
+        }
+    }
+
+    /**
      * Send mule transfer started notification
      */
     public void sendMuleTransferStarted(String muleUsername, String location) {
