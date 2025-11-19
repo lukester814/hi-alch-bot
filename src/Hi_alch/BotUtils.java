@@ -1,26 +1,11 @@
 package Hi_alch;
 
-import org.dreambot.api.Client;
-import org.dreambot.api.data.GameState;
-import org.dreambot.api.methods.container.impl.Inventory;
-import org.dreambot.api.methods.input.Camera;
-import org.dreambot.api.methods.input.mouse.MouseSettings;
-import org.dreambot.api.methods.world.World;
-import org.dreambot.api.methods.world.Worlds;
-import org.dreambot.api.methods.interactive.Players;
-import org.dreambot.api.methods.worldhopper.WorldHopper;
-import org.dreambot.api.utilities.Sleep;
-import org.dreambot.api.utilities.Logger;
-
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-
-import static org.dreambot.api.utilities.Sleep.sleepUntil;
 
 /**
  * Professional Bot Utilities Class
@@ -297,35 +282,9 @@ public class BotUtils {
      * Note: Simplified implementation - world hopping should be done manually
      */
     public static boolean hopToWorld(int worldNumber) {
-
-        // Already there?
-        if (Worlds.getCurrentWorld() == worldNumber) {
-            log("🌍 Already in world " + worldNumber);
-            return true;
-        }
-
-        log("🌍 Attempting to hop to world " + worldNumber);
-
-        // Start the hop via WorldHopper
-        if (!WorldHopper.hopWorld(worldNumber)) {
-            log("❌ Failed to start world hop to " + worldNumber);
-            return false;
-        }
-
-        // Wait until we're done hopping & in the new world
-        Sleep.sleepUntil(
-                () -> Client.getGameState() != GameState.HOPPING
-                        && Worlds.getCurrentWorld() == worldNumber,
-                10_000
-        );
-
-        boolean success = Worlds.getCurrentWorld() == worldNumber;
-        if (success) {
-            log("✅ Now in world " + worldNumber);
-        } else {
-            log("⚠️ Timed out waiting to hop to world " + worldNumber);
-        }
-        return success;
+        log("⚠️ World hopping to " + worldNumber + " - feature not fully implemented");
+        log("💡 Manually hop to world " + worldNumber + " if needed");
+        return false;
     }
 
     /**

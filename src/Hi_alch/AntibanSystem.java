@@ -251,10 +251,11 @@ public class AntibanSystem {
         int baseDelay = 1800 - (aggressionLevel * 100); // 1700ms to 900ms range
         int variance = baseDelay / 3; // 33% variance
 
-        int delay = baseDelay + random.nextInt(variance * 2) - variance;
+        // Use Gaussian distribution for more human-like timing
+        int delay = BotUtils.randomGaussian(baseDelay, variance);
 
         // Add occasional longer pauses (human hesitation)
-        if (random.nextInt(20) == 0) { // 5% chance
+        if (BotUtils.randomChance(0.05)) { // 5% chance
             delay += BotUtils.randomDelay(1000, 3000);
         }
 

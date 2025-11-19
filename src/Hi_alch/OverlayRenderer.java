@@ -109,15 +109,14 @@ public class OverlayRenderer {
          */
         public void calculateDerivedStats() {
             if (scriptRuntime > 0) {
-                double hoursRunning = scriptRuntime / 3600000.0; // Convert ms to hours
-
-                alchsPerHour = alchsCompleted / hoursRunning;
-                profitPerHour = totalProfit / hoursRunning;
-                xpPerHour = xpGained / hoursRunning;
+                // Use BotUtils for consistent rate calculations
+                alchsPerHour = BotUtils.calculateRatePerHour(alchsCompleted, scriptRuntime);
+                profitPerHour = BotUtils.calculateRatePerHour(totalProfit, scriptRuntime);
+                xpPerHour = BotUtils.calculateRatePerHour(xpGained, scriptRuntime);
 
                 // Calculate success rate
                 if (alchsCompleted + errorsEncountered > 0) {
-                    successRate = ((double) alchsCompleted / (alchsCompleted + errorsEncountered)) * 100.0;
+                    successRate = BotUtils.calculatePercentage(alchsCompleted, alchsCompleted + errorsEncountered);
                 }
 
                 // Calculate average alch time
