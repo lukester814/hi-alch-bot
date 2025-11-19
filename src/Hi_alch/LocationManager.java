@@ -316,43 +316,9 @@ public class LocationManager {
      */
     public void performLocationAntiban() {
         try {
-            switch (currentLocation.getType()) {
-                case AGILITY:
-                    // While training agility, occasionally check agility XP
-                    if (BotUtils.random(0, 100) < 30) {
-                        antibanSystem.performRandomSkillCheck();
-                    }
-                    break;
-
-                case FISHING:
-                    // While fishing, occasionally check fishing spots
-                    if (BotUtils.random(0, 100) < 25) {
-                        antibanSystem.performRandomMouseMovement();
-                    }
-                    break;
-
-                case WOODCUTTING:
-                case MINING:
-                    // Resource gathering - check skill occasionally
-                    if (BotUtils.random(0, 100) < 20) {
-                        antibanSystem.performRandomSkillCheck();
-                    }
-                    break;
-
-                case BANK_STANDING:
-                    // Bank standing - more frequent camera adjustments
-                    if (BotUtils.random(0, 100) < 40) {
-                        antibanSystem.performRandomCameraAdjustment();
-                    }
-                    break;
-
-                case SAFE_AFK:
-                    // Safe spots - occasional tab checks
-                    if (BotUtils.random(0, 100) < 35) {
-                        antibanSystem.performRandomTabCheck();
-                    }
-                    break;
-            }
+            // Trigger antiban system update which will perform random behaviors
+            // based on the configured profile and aggression level
+            antibanSystem.update();
 
         } catch (Exception e) {
             BotUtils.logError("Error performing location antiban", e);

@@ -178,8 +178,9 @@ public class BankManager {
 
             for (BankLocation location : BankLocation.values()) {
                 try {
-                    int distance = org.dreambot.api.methods.interactive.Players.getLocal()
+                    double rawDistance = org.dreambot.api.methods.interactive.Players.getLocal()
                                    .getTile().distance(location.getArea().getCenter());
+                    int distance = (int) Math.round(rawDistance);
 
                     if (distance < shortestDistance) {
                         shortestDistance = distance;

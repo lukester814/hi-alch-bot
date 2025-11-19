@@ -369,7 +369,7 @@ public class GESlotManager {
 
             for (int i = 0; i < TOTAL_SLOTS; i++) {
                 if (slots[i].status == SlotStatus.COMPLETED) {
-                    if (GrandExchange.collect(i)) {
+                    if (GrandExchange.collect()) {
                         collected++;
                         Sleep.sleep(300, 600);
                     }

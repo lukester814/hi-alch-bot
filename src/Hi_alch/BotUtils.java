@@ -418,6 +418,18 @@ public class BotUtils {
     }
 
     /**
+     * Generate random integer between min and max (inclusive)
+     */
+    public static int random(int min, int max) {
+        if (min > max) {
+            int temp = min;
+            min = max;
+            max = temp;
+        }
+        return RANDOM.nextInt((max - min) + 1) + min;
+    }
+
+    /**
      * Pick random element from array
      */
     public static <T> T randomChoice(T[] array) {
