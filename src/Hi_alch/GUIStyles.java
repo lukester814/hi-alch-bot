@@ -23,7 +23,9 @@ public class GUIStyles {
     // COLOR CONSTANTS
     // ===========================================
 
+    // Primary colors
     public static final Color BORDER_COLOR = new Color(64, 128, 255);
+    public static final Color ACCENT_COLOR = new Color(64, 128, 255);
     public static final Color QUESTION_MARK_COLOR = new Color(96, 165, 250);
     public static final Color QUESTION_MARK_HOVER_COLOR = new Color(147, 197, 253);
     public static final Color SUCCESS_COLOR = new Color(76, 175, 80);
@@ -34,16 +36,27 @@ public class GUIStyles {
     public static final Color PROFIT_COLOR = new Color(34, 197, 94);
     public static final Color LOSS_COLOR = new Color(239, 68, 68);
 
+    // Background colors
+    public static final Color DARK_BG = new Color(45, 45, 48);
+    public static final Color PANEL_BG = new Color(60, 63, 65);
+
+    // Text colors
+    public static final Color TEXT_COLOR = new Color(220, 220, 220);
+    public static final Color TEXT_SECONDARY = new Color(160, 160, 160);
+
     // ===========================================
     // FONT CONSTANTS
     // ===========================================
 
     public static final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 13);
+    public static final Font HEADER_FONT = new Font("Segoe UI", Font.BOLD, 14);
     public static final Font NORMAL_FONT = new Font("Inter", Font.PLAIN, 13);
     public static final Font LABEL_FONT = new Font("Inter", Font.PLAIN, 13);
     public static final Font BUTTON_FONT = new Font("Inter", Font.BOLD, 13);
     public static final Font QUESTION_FONT = new Font("Inter", Font.BOLD, 12);
     public static final Font SUBTITLE_FONT = new Font("Inter", Font.ITALIC, 11);
+    public static final Font SMALL_FONT = new Font("Inter", Font.PLAIN, 11);
+    public static final Font VALUE_FONT = new Font("Segoe UI", Font.BOLD, 13);
     public static final Font TABLE_FONT = new Font("Segoe UI", Font.PLAIN, 12);
     public static final Font TABLE_HEADER_FONT = new Font("Segoe UI", Font.BOLD, 12);
     public static final Font STATUS_FONT = new Font("Segoe UI", Font.BOLD, 13);
