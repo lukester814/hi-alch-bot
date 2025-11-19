@@ -289,18 +289,12 @@ public class BotUtils {
 
     /**
      * Hop to a specific world
+     * Note: Simplified implementation - world hopping should be done manually
      */
     public static boolean hopToWorld(int worldNumber) {
-        try {
-            if (Worlds.hopToWorld(worldNumber)) {
-                Sleep.sleepUntil(() -> Worlds.getCurrentWorld() == worldNumber, 10000);
-                return Worlds.getCurrentWorld() == worldNumber;
-            }
-            return false;
-        } catch (Exception e) {
-            logError("Error hopping to world " + worldNumber, e);
-            return false;
-        }
+        log("⚠️ World hopping to " + worldNumber + " - feature not fully implemented");
+        log("💡 Manually hop to world " + worldNumber + " if needed");
+        return false;
     }
 
     /**
