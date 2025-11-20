@@ -1,5 +1,7 @@
 package Hi_alch;
 
+import Hi_alch.gui.GUIConfiguration;
+import Hi_alch.gui.GUIEventListener;
 import org.dreambot.api.methods.Calculations;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.skills.Skills;
@@ -33,7 +35,7 @@ import javax.swing.SwingUtilities;
         version = 2.0,
         name = "High Alchemy Bot v2.0"
 )
-public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventListener {
+public class HighAlchBot extends AbstractScript implements GUIEventListener {
 
     // ===========================================
     // CORE COMPONENTS
@@ -53,7 +55,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
 
     private volatile boolean botRunning = false;
     private volatile boolean botStopping = false;
-    private AlchBotGUI.GUIConfiguration currentConfig;
+    private GUIConfiguration currentConfig;
     private long sessionStartTime;
     private final Object stateLock = new Object();
 
@@ -250,7 +252,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
         try {
             if (settingsManager != null) {
                 // Try to load existing default settings
-                AlchBotGUI.GUIConfiguration loadedConfig = settingsManager.loadDefaultSettings();
+                GUIConfiguration loadedConfig = settingsManager.loadDefaultSettings();
 
                 if (loadedConfig != null && gui != null) {
                     gui.applyConfiguration(loadedConfig);
@@ -365,7 +367,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     // ===========================================
 
     @Override
-    public void onStartBot(AlchBotGUI.GUIConfiguration config) {
+    public void onStartBot(GUIConfiguration config) {
         try {
             synchronized (stateLock) {
                 if (botRunning) {
@@ -518,7 +520,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     public void onLoadSettings() {
         try {
             if (settingsManager != null && gui != null) {
-                AlchBotGUI.GUIConfiguration loadedConfig = settingsManager.loadSettings("user_settings");
+                GUIConfiguration loadedConfig = settingsManager.loadSettings("user_settings");
 
                 if (loadedConfig != null) {
                     gui.applyConfiguration(loadedConfig);
@@ -582,7 +584,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     /**
      * Validate bot configuration
      */
-    private boolean validateConfiguration(AlchBotGUI.GUIConfiguration config) {
+    private boolean validateConfiguration(GUIConfiguration config) {
         try {
             // Validate item selection
             if (config.selectedItemName == null || config.selectedItemName.trim().isEmpty()) {
@@ -627,7 +629,7 @@ public class HighAlchBot extends AbstractScript implements AlchBotGUI.GUIEventLi
     /**
      * Configure all components with the provided configuration
      */
-    private void configureComponents(AlchBotGUI.GUIConfiguration config) {
+    private void configureComponents(GUIConfiguration config) {
         try {
             // Configure alchemy engine with individual parameters using correct method signature
             if (alchingEngine != null) {

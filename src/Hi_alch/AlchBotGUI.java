@@ -1,5 +1,6 @@
 package Hi_alch;
 
+import Hi_alch.gui.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -85,7 +86,7 @@ public class AlchBotGUI {
     private JScrollPane dataScrollPane;
 
     // Helper components
-    private final List<JLabel> questionMarkLabels = new ArrayList<>();
+    private final GUIStyler styler = new GUIStyler();
 
     // Store the found custom item ID
     private int foundCustomItemId = -1;
@@ -165,53 +166,6 @@ public class AlchBotGUI {
     // ===========================================
 
     private GUIEventListener eventListener;
-
-    /**
-     * Event listener interface for GUI interactions
-     */
-    public interface GUIEventListener {
-        void onStartBot(GUIConfiguration config);
-        void onStopBot();
-        boolean onTestWebhook(String webhookUrl);
-        void onSaveSettings();
-        void onLoadSettings();
-        void onItemSelected(String itemName);
-        void onConfigurationChanged();
-        void onAlchemyConfigurationChanged(boolean enabled);
-    }
-
-    /**
-     * Configuration data class - WITH ALL FIELDS
-     */
-    public static class GUIConfiguration {
-        public String selectedItemName;
-        public int selectedItemId;
-        public int buyLimit;
-        public double priceMarkup;
-        public int natureRuneAmount;
-        public boolean smartProfitEnabled;
-        public boolean worldHopEnabled;
-        public boolean alchConfigEnabled;
-        public boolean skipBuying;
-        public boolean restockWhenEmpty;
-        public String discordWebhookUrl;
-        public boolean discordNotificationsEnabled;
-        public boolean antibanEnabled;
-        public int antibanAggression;
-        public boolean breakSystemEnabled;
-        public int minBreakMinutes;
-        public int maxBreakMinutes;
-        public boolean fatigueSystemEnabled;
-        public boolean profileSeedingEnabled;
-        public String userProfileSeed;
-        public int currentFatigueLevel;
-
-        @Override
-        public String toString() {
-            return String.format("Item: %s | Limit: %d | Markup: %.1f%% | Runes: %d | Skip: %s | Restock: %s",
-                    selectedItemName, buyLimit, priceMarkup, natureRuneAmount, skipBuying, restockWhenEmpty);
-        }
-    }
 
     // ===========================================
     // CONSTRUCTOR & INITIALIZATION
@@ -913,112 +867,39 @@ public class AlchBotGUI {
     }
 
     // ===========================================
-    // STYLING METHODS - SUBSTANCE COMPATIBLE
+    // STYLING METHODS - DELEGATED TO GUIStyler
     // ===========================================
 
     private TitledBorder createProfessionalBorder(String title) {
-        TitledBorder border = BorderFactory.createTitledBorder(title);
-        border.setTitleColor(new Color(64, 128, 255));
-        border.setTitleFont(new Font("Segoe UI", Font.BOLD, 13));
-        border.setBorder(BorderFactory.createLineBorder(new Color(64, 128, 255), 1));
-        return border;
+        return styler.createProfessionalBorder(title);
     }
 
     private JLabel createStyledLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font("Inter", Font.PLAIN, 13));
-        return label;
+        return styler.createStyledLabel(text);
     }
 
     private JLabel createQuestionMark(String tooltipText) {
-        final JLabel questionMark = new JLabel("[?]");
-        questionMark.setFont(new Font("Inter", Font.BOLD, 12));
-        questionMark.setForeground(new Color(96, 165, 250));
-        questionMark.setToolTipText("<html><div style='width: 300px; font-family: Inter;'>" + tooltipText + "</div></html>");
-        questionMark.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        questionMark.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
-
-        questionMark.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                JLabel source = (JLabel) e.getSource();
-                source.setForeground(new Color(147, 197, 253));
-                source.setText("【?】");
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                JLabel source = (JLabel) e.getSource();
-                source.setForeground(new Color(96, 165, 250));
-                source.setText("[?]");
-            }
-        });
-
-        questionMarkLabels.add(questionMark);
-        return questionMark;
+        return styler.createQuestionMark(tooltipText);
     }
 
     private void styleTextField(JTextField field) {
-        field.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        field.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(100, 100, 100)),
-                BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
+        styler.styleTextField(field);
     }
 
     private void styleComboBox(JComboBox<?> comboBox) {
-        comboBox.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        styler.styleComboBox(comboBox);
     }
 
     private void styleSpinner(JSpinner spinner) {
-        spinner.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        styler.styleSpinner(spinner);
     }
 
     private void styleCheckBox(JCheckBox checkBox) {
-        checkBox.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        checkBox.setFocusPainted(false);
+        styler.styleCheckBox(checkBox);
     }
 
     private void styleButton(JButton button, Color color) {
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Inter", Font.BOLD, 13));
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setOpaque(true);
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(8, 16, 8, 16),
-                BorderFactory.createLineBorder(color.darker(), 1, true)
-        ));
-
-        button.putClientProperty("originalColor", color);
-
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                JButton sourceButton = (JButton) e.getSource();
-                Color originalColor = (Color) sourceButton.getClientProperty("originalColor");
-                if (originalColor != null) {
-                    Color hoverColor = new Color(
-                            Math.min(255, originalColor.getRed() + 20),
-                            Math.min(255, originalColor.getGreen() + 20),
-                            Math.min(255, originalColor.getBlue() + 20)
-                    );
-                    sourceButton.setBackground(hoverColor);
-                }
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                JButton sourceButton = (JButton) e.getSource();
-                Color originalColor = (Color) sourceButton.getClientProperty("originalColor");
-                if (originalColor != null) {
-                    sourceButton.setBackground(originalColor);
-                }
-            }
-        });
+        styler.styleButton(button, color);
     }
 
     // ===========================================
@@ -1440,7 +1321,7 @@ public class AlchBotGUI {
     }
 
     /**
-     * Update profit preview with LIVE API data
+     * Update profit preview with LIVE API data - Delegated to ProfitCalculator
      */
     private void updateProfitPreview() {
         try {
@@ -1466,40 +1347,9 @@ public class AlchBotGUI {
             int buyLimit = (Integer) buyLimitSpinner.getValue();
             double markup = (Double) priceMarkupSpinner.getValue();
 
-            ItemSearchAPI.ItemSearchResult apiData = ItemSearchAPI.searchItem(selectedItem);
-
-            if (apiData != null && apiData.isValid()) {
-                int buyPrice = apiData.averagePrice > 0 ? apiData.averagePrice : apiData.highPrice;
-                int alchValue = apiData.alchValue;
-
-                int adjustedBuyPrice = (int) (buyPrice * (1.0 + markup / 100.0));
-                int natureRuneCost = 220;
-                int profitPerItem = alchValue - adjustedBuyPrice - natureRuneCost;
-                int totalProfit = profitPerItem * buyLimit;
-
-                String profitText;
-                Color profitColor;
-
-                if (profitPerItem > 0) {
-                    profitText = String.format("💰 %s: +%s GP profit per item | Total: +%s GP (LIVE DATA)",
-                            selectedItem,
-                            BotUtils.formatNumber(profitPerItem),
-                            BotUtils.formatNumber(totalProfit));
-                    profitColor = new Color(34, 197, 94);
-                } else {
-                    profitText = String.format("⚠️ %s: %s GP loss per item | Total: %s GP (LIVE DATA)",
-                            selectedItem,
-                            BotUtils.formatNumber(Math.abs(profitPerItem)),
-                            BotUtils.formatNumber(totalProfit));
-                    profitColor = new Color(239, 68, 68);
-                }
-
-                profitPreviewLabel.setText(profitText);
-                profitPreviewLabel.setForeground(profitColor);
-            } else {
-                profitPreviewLabel.setText("Unable to fetch live data for " + selectedItem);
-                profitPreviewLabel.setForeground(new Color(239, 68, 68));
-            }
+            ProfitCalculator.ProfitResult result = ProfitCalculator.calculateProfit(selectedItem, buyLimit, markup);
+            profitPreviewLabel.setText(result.text);
+            profitPreviewLabel.setForeground(result.color);
 
         } catch (Exception e) {
             profitPreviewLabel.setText("Error calculating profit preview");
@@ -1940,7 +1790,7 @@ public class AlchBotGUI {
                 frame.dispose();
             }
 
-            questionMarkLabels.clear();
+            styler.cleanup();
 
             BotUtils.log("✅ GUI resources cleaned up successfully");
 

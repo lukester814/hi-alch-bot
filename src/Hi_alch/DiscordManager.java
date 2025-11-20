@@ -1,4 +1,5 @@
 package Hi_alch;
+import Hi_alch.gui.GUIConfiguration;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -93,7 +94,7 @@ public class DiscordManager {
     /**
      * Send startup notification when bot begins
      */
-    public void sendStartupNotification(AlchBotGUI.GUIConfiguration config) {
+    public void sendStartupNotification(GUIConfiguration config) {
         if (!isEnabled || !notificationsEnabled) return;
 
         try {

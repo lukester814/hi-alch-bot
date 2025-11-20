@@ -1,4 +1,5 @@
 package Hi_alch;
+import Hi_alch.gui.GUIConfiguration;
 
 import java.io.*;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class SettingsManager {
     private static final String DEFAULT_FILENAME = "bot_settings.txt";
 
     // Current configuration cache
-    private AlchBotGUI.GUIConfiguration lastSavedConfig;
+    private GUIConfiguration lastSavedConfig;
     private String lastFilename = "";
 
     // ===========================================
@@ -67,7 +68,7 @@ public class SettingsManager {
     /**
      * Save configuration to file
      */
-    public boolean saveConfiguration(AlchBotGUI.GUIConfiguration config, String filename) {
+    public boolean saveConfiguration(GUIConfiguration config, String filename) {
         if (config == null || filename == null || filename.trim().isEmpty()) {
             BotUtils.log("❌ Invalid configuration or filename");
             return false;
@@ -116,7 +117,7 @@ public class SettingsManager {
     /**
      * Save with user file dialog
      */
-    public boolean saveWithDialog(AlchBotGUI.GUIConfiguration config) {
+    public boolean saveWithDialog(GUIConfiguration config) {
         JFileChooser fileChooser = new JFileChooser(SETTINGS_DIR);
         fileChooser.setFileFilter(new FileNameExtensionFilter("Settings Files", "txt"));
         fileChooser.setSelectedFile(new File("my_settings.txt"));
@@ -142,7 +143,7 @@ public class SettingsManager {
     /**
      * Load settings from specific filename
      */
-    public AlchBotGUI.GUIConfiguration loadSettings(String filename) {
+    public GUIConfiguration loadSettings(String filename) {
         if (filename == null || filename.trim().isEmpty()) {
             BotUtils.log("❌ Invalid filename");
             return null;
@@ -166,7 +167,7 @@ public class SettingsManager {
             }
 
             // Parse configuration
-            AlchBotGUI.GUIConfiguration config = deserializeConfiguration(content.toString());
+            GUIConfiguration config = deserializeConfiguration(content.toString());
 
             if (config != null) {
                 lastSavedConfig = config;
@@ -185,7 +186,7 @@ public class SettingsManager {
     /**
      * Load with user file dialog
      */
-    public AlchBotGUI.GUIConfiguration loadWithDialog() {
+    public GUIConfiguration loadWithDialog() {
         JFileChooser fileChooser = new JFileChooser(SETTINGS_DIR);
         fileChooser.setFileFilter(new FileNameExtensionFilter("Settings Files", "txt"));
 
@@ -203,9 +204,9 @@ public class SettingsManager {
     /**
      * Load default settings
      */
-    public AlchBotGUI.GUIConfiguration loadDefaultSettings() {
+    public GUIConfiguration loadDefaultSettings() {
         // Try to load from default file first
-        AlchBotGUI.GUIConfiguration config = loadSettings("default");
+        GUIConfiguration config = loadSettings("default");
 
         if (config == null) {
             // Create built-in default configuration
@@ -223,7 +224,7 @@ public class SettingsManager {
     /**
      * Serialize configuration to string format
      */
-    private String serializeConfiguration(AlchBotGUI.GUIConfiguration config) {
+    private String serializeConfiguration(GUIConfiguration config) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("# High Alchemy Bot Settings\n");
@@ -261,13 +262,13 @@ public class SettingsManager {
     /**
      * Deserialize configuration from string format
      */
-    private AlchBotGUI.GUIConfiguration deserializeConfiguration(String data) {
+    private GUIConfiguration deserializeConfiguration(String data) {
         if (data == null || data.trim().isEmpty()) {
             return null;
         }
 
         try {
-            AlchBotGUI.GUIConfiguration config = new AlchBotGUI.GUIConfiguration();
+            GUIConfiguration config = new GUIConfiguration();
             Map<String, String> values = parseConfigurationData(data);
 
             // Item settings
@@ -327,8 +328,8 @@ public class SettingsManager {
     /**
      * Create default configuration
      */
-    private AlchBotGUI.GUIConfiguration createDefaultConfiguration() {
-        AlchBotGUI.GUIConfiguration config = new AlchBotGUI.GUIConfiguration();
+    private GUIConfiguration createDefaultConfiguration() {
+        GUIConfiguration config = new GUIConfiguration();
 
         // Default item settings
         config.selectedItemName = "Dragon longsword";
@@ -406,14 +407,14 @@ public class SettingsManager {
     /**
      * Get last saved configuration
      */
-    public AlchBotGUI.GUIConfiguration getLastSavedConfig() {
+    public GUIConfiguration getLastSavedConfig() {
         return lastSavedConfig;
     }
 
     /**
      * Update current configuration cache
      */
-    public void updateCurrentConfig(AlchBotGUI.GUIConfiguration config) {
+    public void updateCurrentConfig(GUIConfiguration config) {
         this.lastSavedConfig = config;
     }
 }
