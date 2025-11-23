@@ -1,4 +1,4 @@
-package Hi_alch;
+package Hi_alch.api;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -1,7 +1,7 @@
 package Hi_alch.engine;
 
-import Hi_alch.BotUtils;
-import Hi_alch.ItemSearchAPI;
+import Hi_alch.utils.BotUtils;
+import Hi_alch.api.ItemSearchAPI;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.grandexchange.GrandExchange;
 import org.dreambot.api.utilities.Sleep;

@@ -1,4 +1,4 @@
-package Hi_alch;
+package Hi_alch.gui;
 
 import Hi_alch.gui.*;
 import Hi_alch.gui.panels.*;

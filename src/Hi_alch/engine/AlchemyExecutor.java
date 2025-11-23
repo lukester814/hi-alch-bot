@@ -1,6 +1,6 @@
 package Hi_alch.engine;
 
-import Hi_alch.BotUtils;
+import Hi_alch.utils.BotUtils;
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.magic.Magic;

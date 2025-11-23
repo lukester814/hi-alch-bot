@@ -1,7 +1,7 @@
 package Hi_alch.gui.panels;
 
-import Hi_alch.BotUtils;
-import Hi_alch.ItemSearchAPI;
+import Hi_alch.utils.BotUtils;
+import Hi_alch.api.ItemSearchAPI;
 import Hi_alch.gui.GUIStyler;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

@@ -1,4 +1,4 @@
-package Hi_alch;
+package Hi_alch.managers;
 import Hi_alch.gui.GUIConfiguration;
 
 import java.io.*;

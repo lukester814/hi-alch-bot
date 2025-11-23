@@ -1,7 +1,7 @@
 package Hi_alch.gui;
 
-import Hi_alch.BotUtils;
-import Hi_alch.ItemSearchAPI;
+import Hi_alch.utils.BotUtils;
+import Hi_alch.api.ItemSearchAPI;
 import java.awt.Color;
 
 /**

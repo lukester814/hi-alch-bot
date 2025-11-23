@@ -1,4 +1,4 @@
-package Hi_alch;
+package Hi_alch.utils;
 
 import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.input.Camera;

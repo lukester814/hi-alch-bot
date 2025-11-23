@@ -1,4 +1,4 @@
-package Hi_alch;
+package Hi_alch.overlay;
 
 import Hi_alch.overlay.*;
 import Hi_alch.overlay.ScriptStatistics;

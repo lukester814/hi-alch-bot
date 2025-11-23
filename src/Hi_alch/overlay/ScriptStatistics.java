@@ -1,6 +1,6 @@
 package Hi_alch.overlay;
 
-import Hi_alch.BotUtils;
+import Hi_alch.utils.BotUtils;
 
 /**
  * Comprehensive statistics tracking class for bot scripts

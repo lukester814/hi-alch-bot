@@ -1,4 +1,4 @@
-package Hi_alch;
+package Hi_alch.managers;
 
 import org.dreambot.api.methods.input.Camera;
 import org.dreambot.api.methods.input.mouse.MouseSettings;
