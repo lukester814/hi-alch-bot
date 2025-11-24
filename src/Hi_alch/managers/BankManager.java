@@ -97,6 +97,10 @@ public class BankManager {
     private boolean useBankPin;
     private boolean hybridMode; // Check bank first, then GE if needed
 
+    // Helpers
+    private BankOperations operations;
+    private BankNavigator navigator;
+
     // ===========================================
     // CONSTRUCTOR
     // ===========================================
@@ -107,6 +111,10 @@ public class BankManager {
         this.useBankPin = false;
         this.hybridMode = true;
 
+        // Initialize helpers
+        this.operations = new BankOperations();
+        this.navigator = new BankNavigator(preferredLocation);
+
         BotUtils.log("🏦 BankManager initialized");
     }
 
@@ -116,6 +124,7 @@ public class BankManager {
 
     public void setPreferredLocation(BankLocation location) {
         this.preferredLocation = location;
+        navigator.setPreferredLocation(location);
         BotUtils.log("🏦 Preferred bank: " + location.getDisplayName());
     }
 
@@ -138,73 +147,18 @@ public class BankManager {
      * Navigate to preferred bank location
      */
     public boolean walkToBank() {
-        try {
-            BotUtils.log("🚶 Walking to " + preferredLocation.getDisplayName());
-
-            if (preferredLocation.isNearby()) {
-                BotUtils.log("✅ Already at bank");
-                return true;
-            }
-
-            if (Walking.shouldWalk()) {
-                Walking.walk(preferredLocation.getArea().getRandomTile());
-            }
-
-            boolean arrived = Sleep.sleepUntil(() -> preferredLocation.isNearby(), 30000);
-
-            if (arrived) {
-                BotUtils.log("✅ Arrived at " + preferredLocation.getDisplayName());
-                return true;
-            } else {
-                BotUtils.log("❌ Failed to reach bank");
-                return false;
-            }
-
-        } catch (Exception e) {
-            BotUtils.logError("Error walking to bank", e);
-            return false;
-        }
+        return navigator.walkToBank();
     }
 
     /**
      * Find and walk to nearest bank
      */
     public boolean walkToNearestBank() {
-        try {
-            BotUtils.log("🔍 Finding nearest bank...");
-
-            BankLocation nearest = null;
-            int shortestDistance = Integer.MAX_VALUE;
-
-            for (BankLocation location : BankLocation.values()) {
-                try {
-                    double rawDistance = org.dreambot.api.methods.interactive.Players.getLocal()
-                                   .getTile().distance(location.getArea().getCenter());
-                    int distance = (int) Math.round(rawDistance);
-
-                    if (distance < shortestDistance) {
-                        shortestDistance = distance;
-                        nearest = location;
-                    }
-                } catch (Exception e) {
-                    // Skip this location
-                }
-            }
-
-            if (nearest != null) {
-                BotUtils.log("🎯 Nearest bank: " + nearest.getDisplayName() +
-                           " (" + shortestDistance + " tiles)");
-                setPreferredLocation(nearest);
-                return walkToBank();
-            }
-
-            BotUtils.log("❌ No nearby banks found");
-            return false;
-
-        } catch (Exception e) {
-            BotUtils.logError("Error finding nearest bank", e);
-            return false;
+        boolean result = navigator.walkToNearestBank();
+        if (result) {
+            preferredLocation = navigator.getPreferredLocation();
         }
+        return result;
     }
 
     // ===========================================
@@ -306,143 +260,35 @@ public class BankManager {
      * Withdraw item from bank
      */
     public boolean withdrawItem(int itemId, int quantity) {
-        try {
-            if (!Bank.isOpen()) {
-                BotUtils.log("❌ Bank is not open");
-                return false;
-            }
-
-            if (!Bank.contains(itemId)) {
-                BotUtils.log("❌ Item " + itemId + " not in bank");
-                return false;
-            }
-
-            int beforeCount = Inventory.count(itemId);
-
-            if (Bank.withdraw(itemId, quantity)) {
-                Sleep.sleepUntil(() -> Inventory.count(itemId) > beforeCount, 3000);
-                BotUtils.log("✅ Withdrew " + quantity + "x item " + itemId);
-                return true;
-            }
-
-            BotUtils.log("❌ Failed to withdraw item " + itemId);
-            return false;
-
-        } catch (Exception e) {
-            BotUtils.logError("Error withdrawing item", e);
-            return false;
-        }
+        return operations.withdrawItem(itemId, quantity);
     }
 
     /**
      * Withdraw item by name
      */
     public boolean withdrawItem(String itemName, int quantity) {
-        try {
-            if (!Bank.isOpen()) {
-                BotUtils.log("❌ Bank is not open");
-                return false;
-            }
-
-            if (!Bank.contains(itemName)) {
-                BotUtils.log("❌ Item '" + itemName + "' not in bank");
-                return false;
-            }
-
-            int beforeCount = Inventory.count(itemName);
-
-            if (Bank.withdraw(itemName, quantity)) {
-                Sleep.sleepUntil(() -> Inventory.count(itemName) > beforeCount, 3000);
-                BotUtils.log("✅ Withdrew " + quantity + "x " + itemName);
-                return true;
-            }
-
-            BotUtils.log("❌ Failed to withdraw " + itemName);
-            return false;
-
-        } catch (Exception e) {
-            BotUtils.logError("Error withdrawing item", e);
-            return false;
-        }
+        return operations.withdrawItem(itemName, quantity);
     }
 
     /**
      * Deposit item to bank
      */
     public boolean depositItem(int itemId, int quantity) {
-        try {
-            if (!Bank.isOpen()) {
-                BotUtils.log("❌ Bank is not open");
-                return false;
-            }
-
-            if (!Inventory.contains(itemId)) {
-                BotUtils.log("❌ Item " + itemId + " not in inventory");
-                return false;
-            }
-
-            if (Bank.deposit(itemId, quantity)) {
-                Sleep.sleep(500, 800);
-                BotUtils.log("✅ Deposited " + quantity + "x item " + itemId);
-                return true;
-            }
-
-            BotUtils.log("❌ Failed to deposit item " + itemId);
-            return false;
-
-        } catch (Exception e) {
-            BotUtils.logError("Error depositing item", e);
-            return false;
-        }
+        return operations.depositItem(itemId, quantity);
     }
 
     /**
      * Deposit all items
      */
     public boolean depositAll() {
-        try {
-            if (!Bank.isOpen()) {
-                BotUtils.log("❌ Bank is not open");
-                return false;
-            }
-
-            if (Bank.depositAllItems()) {
-                Sleep.sleepUntil(() -> Inventory.isEmpty(), 3000);
-                BotUtils.log("✅ Deposited all items");
-                return true;
-            }
-
-            BotUtils.log("❌ Failed to deposit all items");
-            return false;
-
-        } catch (Exception e) {
-            BotUtils.logError("Error depositing all items", e);
-            return false;
-        }
+        return operations.depositAll();
     }
 
     /**
      * Deposit all except specified items
      */
     public boolean depositAllExcept(int... itemIds) {
-        try {
-            if (!Bank.isOpen()) {
-                BotUtils.log("❌ Bank is not open");
-                return false;
-            }
-
-            if (Bank.depositAllExcept(itemIds)) {
-                Sleep.sleep(500, 800);
-                BotUtils.log("✅ Deposited all except " + itemIds.length + " items");
-                return true;
-            }
-
-            return false;
-
-        } catch (Exception e) {
-            BotUtils.logError("Error depositing items", e);
-            return false;
-        }
+        return operations.depositAllExcept(itemIds);
     }
 
     // ===========================================
@@ -460,26 +306,7 @@ public class BankManager {
                 }
             }
 
-            BotUtils.log("📦 Loading preset: " + preset.name);
-
-            // Deposit all items first
-            depositAll();
-
-            // Withdraw items
-            for (int i = 0; i < preset.itemIds.length; i++) {
-                int itemId = preset.itemIds[i];
-                int quantity = preset.quantities[i];
-
-                if (!withdrawItem(itemId, quantity)) {
-                    BotUtils.log("⚠️ Failed to withdraw item " + itemId +
-                               " from preset " + preset.name);
-                }
-
-                Sleep.sleep(400, 700);
-            }
-
-            BotUtils.log("✅ Preset loaded: " + preset.name);
-            return true;
+            return operations.loadPreset(preset);
 
         } catch (Exception e) {
             BotUtils.logError("Error loading preset", e);
@@ -502,7 +329,7 @@ public class BankManager {
                 }
             }
 
-            return Bank.contains(itemId) && Bank.count(itemId) > 0;
+            return operations.hasItemInBank(itemId);
 
         } catch (Exception e) {
             return false;
@@ -520,7 +347,7 @@ public class BankManager {
                 }
             }
 
-            return Bank.count(itemId);
+            return operations.getBankItemCount(itemId);
 
         } catch (Exception e) {
             return 0;

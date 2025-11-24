@@ -1,18 +1,9 @@
 package Hi_alch.managers;
 
-import org.dreambot.api.methods.Calculations;
-import org.dreambot.api.methods.container.impl.Inventory;
 import org.dreambot.api.methods.interactive.Players;
-import org.dreambot.api.methods.tabs.Tab;
-import org.dreambot.api.methods.tabs.Tabs;
 import org.dreambot.api.methods.trade.Trade;
-import org.dreambot.api.methods.trade.TradeUser;
-import org.dreambot.api.methods.walking.impl.Walking;
-import org.dreambot.api.methods.world.World;
-import org.dreambot.api.methods.world.Worlds;
 import org.dreambot.api.utilities.Sleep;
 import org.dreambot.api.wrappers.interactive.Player;
-import org.dreambot.api.wrappers.items.Item;
 
 import java.util.Random;
 
@@ -40,26 +31,26 @@ public class MuleManager {
 
     // Mule settings
     private String muleUsername;
-    private String muleLocation; // "Grand Exchange", "Lumbridge", "Varrock West Bank", etc.
+    private String muleLocation;
     private int transferWorld;
     private boolean enabled;
     private boolean autoTransferProfit;
     private boolean autoTransferItems;
-    private int profitThreshold; // Transfer when profit reaches this amount
-    private int itemThreshold; // Transfer when item count reaches this
+    private int profitThreshold;
+    private int itemThreshold;
 
     // State tracking
     private boolean isTransferring = false;
     private boolean waitingForMule = false;
     private long lastTransferTime = 0;
-    private int totalGPTransferred = 0;
-    private int totalItemsTransferred = 0;
     private int transferCount = 0;
 
-    // Anti-ban
+    // Helpers
     private Random random = new Random();
     private AntibanSystem antibanSystem;
     private DiscordManager discordManager;
+    private MuleTradeHandler tradeHandler;
+    private MuleNavigator navigator;
 
     // Constants
     private static final long TRANSFER_COOLDOWN = 300000; // 5 minutes between transfers
@@ -104,6 +95,10 @@ public class MuleManager {
         this.discordManager = discordManager;
         this.enabled = false;
 
+        // Initialize helpers
+        this.tradeHandler = new MuleTradeHandler(discordManager);
+        this.navigator = new MuleNavigator();
+
         BotUtils.log("🤝 MuleManager initialized");
     }
 
@@ -125,6 +120,10 @@ public class MuleManager {
         this.profitThreshold = profitThresh;
         this.itemThreshold = itemThresh;
         this.enabled = true;
+
+        // Configure helpers
+        tradeHandler.configure(autoProfit, autoItems);
+        navigator.configure(location, world);
 
         BotUtils.log("🤝 Mule configured: " + username + " @ " + location + " (W" + world + ")");
         BotUtils.log("   Auto-transfer: Profit=" + autoProfit + " (" + profitThreshold + " GP), Items=" + autoItems + " (" + itemThresh + ")");
@@ -205,7 +204,7 @@ public class MuleManager {
             }
 
             // Step 1: Prepare for transfer
-            if (!prepareForTransfer()) {
+            if (!navigator.prepareForTransfer()) {
                 BotUtils.log("❌ Failed to prepare for transfer");
                 abortTransfer();
                 return false;
@@ -230,78 +229,6 @@ public class MuleManager {
         } catch (Exception e) {
             BotUtils.logError("Error during mule transfer", e);
             abortTransfer();
-            return false;
-        }
-    }
-
-    // ===========================================
-    // TRANSFER PREPARATION
-    // ===========================================
-
-    /**
-     * Prepare for transfer (hop world, go to location)
-     */
-    private boolean prepareForTransfer() {
-        try {
-            BotUtils.log("📍 Preparing for transfer...");
-
-            // Check if we need to hop worlds
-            if (Worlds.getCurrentWorld() != transferWorld) {
-                BotUtils.log("🌍 Hopping to transfer world: " + transferWorld);
-
-                if (!BotUtils.hopToWorld(transferWorld)) {
-                    BotUtils.log("❌ Failed to hop to transfer world");
-                    return false;
-                }
-
-                // Wait for world hop
-                Sleep.sleep(3000, 5000);
-            }
-
-            // Navigate to mule location
-            BotUtils.log("🗺️ Navigating to mule location: " + muleLocation);
-            if (!navigateToLocation(muleLocation)) {
-                BotUtils.log("❌ Failed to navigate to mule location");
-                return false;
-            }
-
-            BotUtils.log("✅ Preparation complete");
-            return true;
-
-        } catch (Exception e) {
-            BotUtils.logError("Error preparing for transfer", e);
-            return false;
-        }
-    }
-
-    /**
-     * Navigate to specified location
-     */
-    private boolean navigateToLocation(String location) {
-        try {
-            // This is a simplified implementation
-            // In production, you'd use proper area detection and walking
-
-            switch (location.toLowerCase()) {
-                case "grand exchange":
-                    BotUtils.log("🏛️ Already at Grand Exchange (assumed)");
-                    return true;
-
-                case "lumbridge":
-                    BotUtils.log("🏰 Navigation to Lumbridge not implemented yet");
-                    return false;
-
-                case "varrock west bank":
-                    BotUtils.log("🏦 Navigation to Varrock West Bank not implemented yet");
-                    return false;
-
-                default:
-                    BotUtils.log("⚠️ Unknown location: " + location);
-                    return true; // Assume already there
-            }
-
-        } catch (Exception e) {
-            BotUtils.logError("Error navigating to location", e);
             return false;
         }
     }
@@ -334,7 +261,7 @@ public class MuleManager {
                     // Anti-ban delay before interaction
                     Sleep.sleep(1000 + random.nextInt(2000), 2000 + random.nextInt(1000));
 
-                    return executeTrade(mule);
+                    return tradeHandler.executeTrade(mule, muleUsername);
                 }
 
                 // Wait a bit before checking again
@@ -350,161 +277,6 @@ public class MuleManager {
 
         } catch (Exception e) {
             BotUtils.logError("Error finding mule", e);
-            return false;
-        }
-    }
-
-    /**
-     * Execute trade with mule
-     */
-    private boolean executeTrade(Player mule) {
-        try {
-            currentTradeState = TradeState.REQUESTING_TRADE;
-            BotUtils.log("🤝 Initiating trade with: " + mule.getName());
-
-            // Request trade
-            if (!Trade.isOpen()) {
-                if (!mule.interact("Trade with")) {
-                    BotUtils.log("❌ Failed to right-click mule");
-                    return false;
-                }
-
-                // Wait for trade screen
-                currentTradeState = TradeState.WAITING_FOR_ACCEPT;
-                if (!Sleep.sleepUntil(() -> Trade.isOpen(), 10000)) {
-                    BotUtils.log("❌ Trade screen did not open");
-                    return false;
-                }
-            }
-
-            BotUtils.log("📋 Trade screen opened");
-
-            // First trade screen - offer items/GP
-            currentTradeState = TradeState.FIRST_SCREEN;
-            if (!handleFirstTradeScreen()) {
-                return false;
-            }
-
-            // Second trade screen - confirm
-            currentTradeState = TradeState.SECOND_SCREEN;
-            if (!handleSecondTradeScreen()) {
-                return false;
-            }
-
-            // Wait for trade completion
-            currentTradeState = TradeState.COMPLETING;
-            if (!Sleep.sleepUntil(() -> !Trade.isOpen(), 10000)) {
-                BotUtils.log("⚠️ Trade did not close properly");
-            }
-
-            currentTradeState = TradeState.COMPLETED;
-            BotUtils.log("✅ Trade completed successfully!");
-
-            // Send Discord notification
-            if (discordManager != null) {
-                discordManager.sendMuleTransferCompleted(muleUsername, totalGPTransferred, totalItemsTransferred);
-            }
-
-            return true;
-
-        } catch (Exception e) {
-            BotUtils.logError("Error executing trade", e);
-            currentTradeState = TradeState.FAILED;
-            return false;
-        }
-    }
-
-    /**
-     * Handle first trade screen (offer items/GP)
-     */
-    private boolean handleFirstTradeScreen() {
-        try {
-            BotUtils.log("💰 First trade screen - offering items...");
-
-            // Anti-ban delay
-            Sleep.sleep(800 + random.nextInt(1200), 1500 + random.nextInt(500));
-
-            // Count what we're offering
-            int gpToTransfer = 0;
-            int itemsToTransfer = 0;
-
-            // Offer all GP if auto-transfer is enabled
-            if (autoTransferProfit) {
-                int availableGP = Inventory.count(995); // Coins
-                if (availableGP > 0) {
-                    Item coinsItem = Inventory.get(995);
-                    if (coinsItem != null && coinsItem.interact("Offer-All")) {
-                        gpToTransfer = availableGP;
-                        totalGPTransferred += availableGP;
-                        BotUtils.log("💵 Offered " + BotUtils.formatNumber(availableGP) + " GP");
-
-                        Sleep.sleep(500 + random.nextInt(800), 1000 + random.nextInt(500));
-                    }
-                }
-            }
-
-            // Offer items if auto-transfer is enabled
-            if (autoTransferItems) {
-                for (Item item : Inventory.all(i -> i != null && i.getId() != 995)) {
-                    if (item.interact("Offer-All")) {
-                        itemsToTransfer += item.getAmount();
-                        totalItemsTransferred += item.getAmount();
-                        BotUtils.log("📦 Offered " + item.getAmount() + "x " + item.getName());
-
-                        Sleep.sleep(400 + random.nextInt(600), 800 + random.nextInt(400));
-                    }
-                }
-            }
-
-            // Wait for mule to accept
-            BotUtils.log("⏳ Waiting for mule to accept...");
-            Sleep.sleep(2000 + random.nextInt(3000), 4000 + random.nextInt(2000));
-
-            // Accept first screen by clicking the accept button
-            if (org.dreambot.api.methods.widget.Widgets.get(335, 16) != null &&
-                org.dreambot.api.methods.widget.Widgets.get(335, 16).interact()) {
-                BotUtils.log("✅ Accepted first trade screen");
-
-                // Wait for second screen
-                if (!Sleep.sleepUntil(Trade::isOpen, 15000)) {
-                    BotUtils.log("❌ Second trade screen did not open");
-                    return false;
-                }
-
-                return true;
-            } else {
-                BotUtils.log("❌ Failed to accept first trade screen");
-                return false;
-            }
-
-        } catch (Exception e) {
-            BotUtils.logError("Error in first trade screen", e);
-            return false;
-        }
-    }
-
-    /**
-     * Handle second trade screen (confirm)
-     */
-    private boolean handleSecondTradeScreen() {
-        try {
-            BotUtils.log("✔️ Second trade screen - confirming...");
-
-            // Anti-ban delay - read the second screen
-            Sleep.sleep(1500 + random.nextInt(2500), 3000 + random.nextInt(1500));
-
-            // Accept second screen by clicking the accept button
-            if (org.dreambot.api.methods.widget.Widgets.get(334, 19) != null &&
-                org.dreambot.api.methods.widget.Widgets.get(334, 19).interact()) {
-                BotUtils.log("✅ Confirmed trade");
-                return true;
-            } else {
-                BotUtils.log("❌ Failed to confirm trade");
-                return false;
-            }
-
-        } catch (Exception e) {
-            BotUtils.logError("Error in second trade screen", e);
             return false;
         }
     }
@@ -571,14 +343,14 @@ public class MuleManager {
      * Get total GP transferred
      */
     public int getTotalGPTransferred() {
-        return totalGPTransferred;
+        return tradeHandler.getTotalGPTransferred();
     }
 
     /**
      * Get total items transferred
      */
     public int getTotalItemsTransferred() {
-        return totalItemsTransferred;
+        return tradeHandler.getTotalItemsTransferred();
     }
 
     /**
@@ -593,8 +365,8 @@ public class MuleManager {
      */
     public MuleStatistics getStatistics() {
         MuleStatistics stats = new MuleStatistics();
-        stats.totalGPTransferred = totalGPTransferred;
-        stats.totalItemsTransferred = totalItemsTransferred;
+        stats.totalGPTransferred = tradeHandler.getTotalGPTransferred();
+        stats.totalItemsTransferred = tradeHandler.getTotalItemsTransferred();
         stats.transferCount = transferCount;
         stats.currentState = currentTradeState.getDescription();
         stats.isTransferring = isTransferring;
