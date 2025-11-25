@@ -1,8 +1,15 @@
 package Hi_alch.core;
 
-import Hi_alch.*;
+import Hi_alch.engine.AlchingEngine;
+import Hi_alch.managers.PriceManager;
+import Hi_alch.managers.AntibanSystem;
+import Hi_alch.managers.DiscordManager;
+import Hi_alch.managers.SettingsManager;
+import Hi_alch.overlay.OverlayRenderer;
 import Hi_alch.overlay.ScriptStatistics;
-import Hi_alch.gui.*;
+import Hi_alch.gui.AlchBotGUI;
+import Hi_alch.gui.GUIConfiguration;
+import Hi_alch.gui.GUIEventListener;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.script.Category;

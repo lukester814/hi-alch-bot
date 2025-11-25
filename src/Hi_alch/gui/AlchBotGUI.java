@@ -1,6 +1,6 @@
 package Hi_alch.gui;
 
-import Hi_alch.BotUtils;
+import Hi_alch.utils.BotUtils;
 import Hi_alch.gui.panels.*;
 import javax.swing.*;
 import java.awt.*;

@@ -1,6 +1,6 @@
 package Hi_alch.managers;
 
-import Hi_alch.BotUtils;
+import Hi_alch.utils.BotUtils;
 import org.dreambot.api.methods.input.Camera;
 import org.dreambot.api.methods.tabs.Tab;
 import org.dreambot.api.methods.tabs.Tabs;

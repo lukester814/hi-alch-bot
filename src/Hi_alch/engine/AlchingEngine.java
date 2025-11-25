@@ -1,6 +1,10 @@
 package Hi_alch.engine;
 
 import Hi_alch.utils.BotUtils;
+import Hi_alch.managers.PriceManager;
+import Hi_alch.managers.AntibanSystem;
+import Hi_alch.managers.DiscordManager;
+import Hi_alch.overlay.OverlayRenderer;
 import org.dreambot.api.methods.container.impl.Inventory;
 
 /**

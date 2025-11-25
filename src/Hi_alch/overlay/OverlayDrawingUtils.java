@@ -1,6 +1,6 @@
 package Hi_alch.overlay;
 
-import Hi_alch.BotUtils;
+import Hi_alch.utils.BotUtils;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import static Hi_alch.overlay.OverlayStyleManager.*;

@@ -1,6 +1,6 @@
 package Hi_alch.managers;
 
-import Hi_alch.BotUtils;
+import Hi_alch.utils.BotUtils;
 import Hi_alch.managers.PriceCache.CachedPrice;
 
 /**
