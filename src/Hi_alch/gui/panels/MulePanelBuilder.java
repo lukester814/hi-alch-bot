@@ -5,7 +5,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 // Import styling utilities
-import static Hi_alch.GUIStyles.*;
+import static Hi_alch.gui.GUIStyles.*;
 
 /**
  * Mule Panel Builder - Creates UI components for Mule Panel

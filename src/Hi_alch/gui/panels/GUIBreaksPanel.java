@@ -3,7 +3,7 @@ package Hi_alch.gui.panels;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import static Hi_alch.GUIStyles.*;
+import static Hi_alch.gui.GUIStyles.*;
 
 /**
  * GUI Panel for Break Handler Configuration

@@ -5,6 +5,7 @@ import Hi_alch.managers.PriceManager;
 import Hi_alch.managers.AntibanSystem;
 import Hi_alch.managers.DiscordManager;
 import Hi_alch.overlay.OverlayRenderer;
+import Hi_alch.overlay.ScriptStatistics;
 import org.dreambot.api.methods.container.impl.Inventory;
 
 /**
@@ -18,7 +19,7 @@ public class AlchingEngine {
     // ===========================================
 
     private BotState currentState;
-    private OverlayRenderer.ScriptStatistics statistics;
+    private ScriptStatistics statistics;
     private boolean isInitialized;
     private boolean restockWhenEmpty;
 
@@ -45,7 +46,7 @@ public class AlchingEngine {
     // ===========================================
 
     public AlchingEngine() {
-        this.statistics = new OverlayRenderer.ScriptStatistics();
+        this.statistics = new ScriptStatistics();
         this.currentState = BotState.INITIALIZING;
         this.alchingCount = 0;
         this.totalProfit = 0;
@@ -402,7 +403,7 @@ public class AlchingEngine {
         statistics.calculateDerivedStats();
     }
 
-    public OverlayRenderer.ScriptStatistics getStatistics() {
+    public ScriptStatistics getStatistics() {
         statistics.calculateDerivedStats();
         return statistics;
     }

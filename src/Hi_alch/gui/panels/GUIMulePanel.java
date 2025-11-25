@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 // Import styling utilities
-import static Hi_alch.GUIStyles.*;
+import static Hi_alch.gui.GUIStyles.*;
 
 /**
  * Professional Mule Configuration Panel

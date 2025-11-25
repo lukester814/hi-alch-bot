@@ -10,6 +10,8 @@ import Hi_alch.overlay.ScriptStatistics;
 import Hi_alch.gui.AlchBotGUI;
 import Hi_alch.gui.GUIConfiguration;
 import Hi_alch.gui.GUIEventListener;
+import Hi_alch.utils.BotUtils;
+import Hi_alch.api.ItemSearchAPI;
 import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.script.Category;

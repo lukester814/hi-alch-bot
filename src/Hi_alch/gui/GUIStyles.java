@@ -17,11 +17,15 @@ public class GUIStyles {
     public static final Color TEXT_DIM = new Color(160, 160, 160);
 
     // Accent colors
+    public static final Color ACCENT_COLOR = new Color(64, 128, 255);
     public static final Color ACCENT_BLUE = new Color(64, 128, 255);
     public static final Color ACCENT_GREEN = new Color(76, 175, 80);
     public static final Color ACCENT_RED = new Color(244, 67, 54);
     public static final Color ACCENT_ORANGE = new Color(249, 115, 22);
     public static final Color ACCENT_YELLOW = new Color(251, 191, 36);
+
+    // Border colors
+    public static final Color BORDER_COLOR = new Color(100, 100, 105);
 
     // Fonts
     public static final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 12);

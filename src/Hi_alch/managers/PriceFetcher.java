@@ -1,5 +1,6 @@
 package Hi_alch.managers;
 
+import Hi_alch.utils.BotUtils;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
