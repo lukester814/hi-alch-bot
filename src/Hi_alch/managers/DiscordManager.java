@@ -278,6 +278,88 @@ public class DiscordManager {
     }
 
     /**
+     * Send session goal reached notification
+     */
+    public void sendSessionGoalReached(int alchs, int profit, int xp, long minutes, int level, SessionGoalsManager.SessionGoals goals) {
+        if (!isEnabled || !notificationsEnabled) return;
+
+        try {
+            String runtimeString = BotUtils.formatDuration(minutes * 60000);
+
+            StringBuilder fieldsBuilder = new StringBuilder();
+            fieldsBuilder.append("      {\n");
+            fieldsBuilder.append("        \"name\": \"🎯 Goals Reached\",\n");
+            fieldsBuilder.append("        \"value\": \"Session goals achieved!\",\n");
+            fieldsBuilder.append("        \"inline\": false\n");
+            fieldsBuilder.append("      },\n");
+
+            // Add each enabled goal's progress
+            if (goals.alchGoalEnabled) {
+                fieldsBuilder.append("      {\n");
+                fieldsBuilder.append("        \"name\": \"🔥 Alchs\",\n");
+                fieldsBuilder.append("        \"value\": \"" + BotUtils.formatNumber(alchs) + " / " + BotUtils.formatNumber(goals.targetAlchs) + "\",\n");
+                fieldsBuilder.append("        \"inline\": true\n");
+                fieldsBuilder.append("      },\n");
+            }
+            if (goals.profitGoalEnabled) {
+                fieldsBuilder.append("      {\n");
+                fieldsBuilder.append("        \"name\": \"💰 Profit\",\n");
+                fieldsBuilder.append("        \"value\": \"" + BotUtils.formatNumber(profit) + " / " + BotUtils.formatNumber(goals.targetProfit) + " GP\",\n");
+                fieldsBuilder.append("        \"inline\": true\n");
+                fieldsBuilder.append("      },\n");
+            }
+            if (goals.xpGoalEnabled) {
+                fieldsBuilder.append("      {\n");
+                fieldsBuilder.append("        \"name\": \"✨ XP Gained\",\n");
+                fieldsBuilder.append("        \"value\": \"" + BotUtils.formatNumber(xp) + " / " + BotUtils.formatNumber(goals.targetXP) + "\",\n");
+                fieldsBuilder.append("        \"inline\": true\n");
+                fieldsBuilder.append("      },\n");
+            }
+            if (goals.timeGoalEnabled) {
+                fieldsBuilder.append("      {\n");
+                fieldsBuilder.append("        \"name\": \"⏱️ Runtime\",\n");
+                fieldsBuilder.append("        \"value\": \"" + minutes + " / " + goals.targetMinutes + " minutes\",\n");
+                fieldsBuilder.append("        \"inline\": true\n");
+                fieldsBuilder.append("      },\n");
+            }
+            if (goals.levelGoalEnabled) {
+                fieldsBuilder.append("      {\n");
+                fieldsBuilder.append("        \"name\": \"📊 Level\",\n");
+                fieldsBuilder.append("        \"value\": \"" + level + " / " + goals.targetLevel + "\",\n");
+                fieldsBuilder.append("        \"inline\": true\n");
+                fieldsBuilder.append("      },\n");
+            }
+
+            // Remove trailing comma
+            String fields = fieldsBuilder.toString();
+            if (fields.endsWith(",\n")) {
+                fields = fields.substring(0, fields.length() - 2) + "\n";
+            }
+
+            String message = "{\n" +
+                    "  \"embeds\": [{\n" +
+                    "    \"title\": \"🎯 Session Goals Reached!\",\n" +
+                    "    \"description\": \"Your session goals have been achieved!\",\n" +
+                    "    \"color\": 15844367,\n" +
+                    "    \"fields\": [\n" +
+                    fields +
+                    "    ],\n" +
+                    "    \"footer\": {\n" +
+                    "      \"text\": \"OSRS High Alchemy Bot | Goals Complete\"\n" +
+                    "    },\n" +
+                    "    \"timestamp\": \"" + java.time.Instant.now().toString() + "\"\n" +
+                    "  }]\n" +
+                    "}";
+
+            sendWebhookMessage(currentWebhookUrl, message);
+            BotUtils.log("📱 Session goal notification sent to Discord");
+
+        } catch (Exception e) {
+            BotUtils.logError("Error sending session goal notification", e);
+        }
+    }
+
+    /**
      * Send emergency notification for critical issues
      */
     public void sendEmergencyNotification(String issue, String details) {

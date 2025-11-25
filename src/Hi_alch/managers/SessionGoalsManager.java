@@ -1,5 +1,6 @@
 package Hi_alch.managers;
 
+import Hi_alch.utils.BotUtils;
 import org.dreambot.api.methods.skills.Skill;
 import org.dreambot.api.methods.skills.Skills;
 

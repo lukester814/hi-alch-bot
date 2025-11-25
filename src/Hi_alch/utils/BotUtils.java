@@ -5,6 +5,7 @@ import org.dreambot.api.methods.input.Camera;
 import org.dreambot.api.methods.input.mouse.MouseSettings;
 import org.dreambot.api.methods.world.World;
 import org.dreambot.api.methods.world.Worlds;
+import org.dreambot.api.methods.worldhopper.WorldHopper;
 import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.utilities.Sleep;
 import org.dreambot.api.utilities.Logger;
@@ -327,13 +328,13 @@ public class BotUtils {
 
             log("Hopping to world " + worldNumber + "...");
 
-            World targetWorld = Worlds.get(worldNumber);
+            World targetWorld = Worlds.getWorld(worldNumber);
             if (targetWorld == null) {
                 logError("World " + worldNumber + " not found");
                 return false;
             }
 
-            if (Worlds.hop(worldNumber)) {
+            if (WorldHopper.hopWorld(worldNumber)) {
                 // Wait for world hop to complete
                 Sleep.sleepUntil(() -> Worlds.getCurrentWorld() == worldNumber, 15000);
 
