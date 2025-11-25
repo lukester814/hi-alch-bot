@@ -1,5 +1,7 @@
 package Hi_alch.managers;
 
+import Hi_alch.utils.BotUtils;
+
 import org.dreambot.api.methods.interactive.Players;
 import org.dreambot.api.methods.trade.Trade;
 import org.dreambot.api.utilities.Sleep;

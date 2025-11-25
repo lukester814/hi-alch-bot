@@ -1,5 +1,7 @@
 package Hi_alch.managers;
 
+import Hi_alch.utils.BotUtils;
+
 import org.dreambot.api.methods.walking.impl.Walking;
 import org.dreambot.api.methods.world.Worlds;
 import org.dreambot.api.utilities.Sleep;

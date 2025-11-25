@@ -321,6 +321,143 @@ public class DiscordManager {
         }
     }
 
+    /**
+     * Send mule transfer started notification
+     */
+    public void sendMuleTransferStarted(String muleUsername, String location) {
+        if (!isEnabled || !notificationsEnabled) return;
+
+        try {
+            String message = "{\n" +
+                    "  \"embeds\": [{\n" +
+                    "    \"title\": \"🤝 Mule Transfer Started\",\n" +
+                    "    \"description\": \"Initiating trade with mule account\",\n" +
+                    "    \"color\": 3447003,\n" +
+                    "    \"fields\": [\n" +
+                    "      {\n" +
+                    "        \"name\": \"👤 Mule Username\",\n" +
+                    "        \"value\": \"" + muleUsername + "\",\n" +
+                    "        \"inline\": true\n" +
+                    "      },\n" +
+                    "      {\n" +
+                    "        \"name\": \"📍 Location\",\n" +
+                    "        \"value\": \"" + location + "\",\n" +
+                    "        \"inline\": true\n" +
+                    "      },\n" +
+                    "      {\n" +
+                    "        \"name\": \"📅 Time\",\n" +
+                    "        \"value\": \"" + DATE_FORMAT.format(new Date()) + "\",\n" +
+                    "        \"inline\": false\n" +
+                    "      }\n" +
+                    "    ],\n" +
+                    "    \"footer\": {\n" +
+                    "      \"text\": \"OSRS High Alchemy Bot | Mule Transfer\"\n" +
+                    "    },\n" +
+                    "    \"timestamp\": \"" + java.time.Instant.now().toString() + "\"\n" +
+                    "  }]\n" +
+                    "}";
+
+            sendWebhookMessage(currentWebhookUrl, message);
+            BotUtils.log("📱 Mule transfer started notification sent to Discord");
+
+        } catch (Exception e) {
+            BotUtils.logError("Error sending mule transfer started notification", e);
+        }
+    }
+
+    /**
+     * Send mule transfer completed notification
+     */
+    public void sendMuleTransferCompleted(String muleUsername, int gpTransferred, int itemsTransferred) {
+        if (!isEnabled || !notificationsEnabled) return;
+
+        try {
+            String message = "{\n" +
+                    "  \"embeds\": [{\n" +
+                    "    \"title\": \"✅ Mule Transfer Completed\",\n" +
+                    "    \"description\": \"Successfully transferred items to mule\",\n" +
+                    "    \"color\": 5763719,\n" +
+                    "    \"fields\": [\n" +
+                    "      {\n" +
+                    "        \"name\": \"👤 Mule Username\",\n" +
+                    "        \"value\": \"" + muleUsername + "\",\n" +
+                    "        \"inline\": true\n" +
+                    "      },\n" +
+                    "      {\n" +
+                    "        \"name\": \"💰 GP Transferred\",\n" +
+                    "        \"value\": \"" + BotUtils.formatNumber(gpTransferred) + "\",\n" +
+                    "        \"inline\": true\n" +
+                    "      },\n" +
+                    "      {\n" +
+                    "        \"name\": \"📦 Items Transferred\",\n" +
+                    "        \"value\": \"" + itemsTransferred + "\",\n" +
+                    "        \"inline\": true\n" +
+                    "      },\n" +
+                    "      {\n" +
+                    "        \"name\": \"📅 Time\",\n" +
+                    "        \"value\": \"" + DATE_FORMAT.format(new Date()) + "\",\n" +
+                    "        \"inline\": false\n" +
+                    "      }\n" +
+                    "    ],\n" +
+                    "    \"footer\": {\n" +
+                    "      \"text\": \"OSRS High Alchemy Bot | Mule Transfer\"\n" +
+                    "    },\n" +
+                    "    \"timestamp\": \"" + java.time.Instant.now().toString() + "\"\n" +
+                    "  }]\n" +
+                    "}";
+
+            sendWebhookMessage(currentWebhookUrl, message);
+            BotUtils.log("📱 Mule transfer completed notification sent to Discord");
+
+        } catch (Exception e) {
+            BotUtils.logError("Error sending mule transfer completed notification", e);
+        }
+    }
+
+    /**
+     * Send mule transfer failed notification
+     */
+    public void sendMuleTransferFailed(String muleUsername, String reason) {
+        if (!isEnabled || !notificationsEnabled) return;
+
+        try {
+            String message = "{\n" +
+                    "  \"embeds\": [{\n" +
+                    "    \"title\": \"❌ Mule Transfer Failed\",\n" +
+                    "    \"description\": \"Failed to complete trade with mule\",\n" +
+                    "    \"color\": 15158332,\n" +
+                    "    \"fields\": [\n" +
+                    "      {\n" +
+                    "        \"name\": \"👤 Mule Username\",\n" +
+                    "        \"value\": \"" + muleUsername + "\",\n" +
+                    "        \"inline\": true\n" +
+                    "      },\n" +
+                    "      {\n" +
+                    "        \"name\": \"❌ Reason\",\n" +
+                    "        \"value\": \"" + reason + "\",\n" +
+                    "        \"inline\": false\n" +
+                    "      },\n" +
+                    "      {\n" +
+                    "        \"name\": \"📅 Time\",\n" +
+                    "        \"value\": \"" + DATE_FORMAT.format(new Date()) + "\",\n" +
+                    "        \"inline\": false\n" +
+                    "      }\n" +
+                    "    ],\n" +
+                    "    \"footer\": {\n" +
+                    "      \"text\": \"OSRS High Alchemy Bot | Mule Transfer\"\n" +
+                    "    },\n" +
+                    "    \"timestamp\": \"" + java.time.Instant.now().toString() + "\"\n" +
+                    "  }]\n" +
+                    "}";
+
+            sendWebhookMessage(currentWebhookUrl, message);
+            BotUtils.log("📱 Mule transfer failed notification sent to Discord");
+
+        } catch (Exception e) {
+            BotUtils.logError("Error sending mule transfer failed notification", e);
+        }
+    }
+
     // ===========================================
     // PERIODIC UPDATES & TESTING
     // ===========================================

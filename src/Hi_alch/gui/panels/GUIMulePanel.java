@@ -1,5 +1,7 @@
 package Hi_alch.gui.panels;
 
+import Hi_alch.utils.BotUtils;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;

@@ -1,5 +1,7 @@
 package Hi_alch.managers;
 
+import Hi_alch.utils.BotUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 

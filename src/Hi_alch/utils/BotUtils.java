@@ -309,6 +309,52 @@ public class BotUtils {
         }
     }
 
+    /**
+     * Hop to a specific world
+     */
+    public static boolean hopToWorld(int worldNumber) {
+        try {
+            if (worldNumber < 301 || worldNumber > 580) {
+                logError("Invalid world number: " + worldNumber);
+                return false;
+            }
+
+            int currentWorld = Worlds.getCurrentWorld();
+            if (currentWorld == worldNumber) {
+                log("Already on world " + worldNumber);
+                return true;
+            }
+
+            log("Hopping to world " + worldNumber + "...");
+
+            World targetWorld = Worlds.get(worldNumber);
+            if (targetWorld == null) {
+                logError("World " + worldNumber + " not found");
+                return false;
+            }
+
+            if (Worlds.hop(worldNumber)) {
+                // Wait for world hop to complete
+                Sleep.sleepUntil(() -> Worlds.getCurrentWorld() == worldNumber, 15000);
+
+                if (Worlds.getCurrentWorld() == worldNumber) {
+                    log("Successfully hopped to world " + worldNumber);
+                    return true;
+                } else {
+                    logError("Failed to hop to world " + worldNumber);
+                    return false;
+                }
+            } else {
+                logError("World hop attempt failed for world " + worldNumber);
+                return false;
+            }
+
+        } catch (Exception e) {
+            logError("Error hopping to world " + worldNumber, e);
+            return false;
+        }
+    }
+
     // ===========================================
     // CALCULATION METHODS
     // ===========================================

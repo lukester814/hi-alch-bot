@@ -1,5 +1,7 @@
 package Hi_alch.managers;
 
+import Hi_alch.utils.BotUtils;
+
 import java.io.*;
 import java.util.*;
 
@@ -238,5 +240,16 @@ public class ProfileManager {
 
     public Map<String, BotProfile> getLoadedProfiles() {
         return new HashMap<>(loadedProfiles);
+    }
+
+    // ===========================================
+    // UTILITY METHODS
+    // ===========================================
+
+    /**
+     * Sanitize filename for safe file system usage
+     */
+    private String sanitizeFilename(String filename) {
+        return filename.replaceAll("[^a-zA-Z0-9_-]", "_");
     }
 }

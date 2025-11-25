@@ -15,6 +15,7 @@ public class GUIStyles {
     // Text colors
     public static final Color TEXT_COLOR = new Color(220, 220, 220);
     public static final Color TEXT_DIM = new Color(160, 160, 160);
+    public static final Color TEXT_SECONDARY = new Color(160, 160, 160);
 
     // Accent colors
     public static final Color ACCENT_COLOR = new Color(64, 128, 255);
@@ -24,6 +25,12 @@ public class GUIStyles {
     public static final Color ACCENT_ORANGE = new Color(249, 115, 22);
     public static final Color ACCENT_YELLOW = new Color(251, 191, 36);
 
+    // Semantic colors
+    public static final Color INFO_COLOR = new Color(64, 128, 255);
+    public static final Color SUCCESS_COLOR = new Color(76, 175, 80);
+    public static final Color WARNING_COLOR = new Color(249, 115, 22);
+    public static final Color PROFIT_COLOR = new Color(76, 175, 80);
+
     // Border colors
     public static final Color BORDER_COLOR = new Color(100, 100, 105);
 
@@ -32,6 +39,10 @@ public class GUIStyles {
     public static final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 14);
     public static final Font HEADER_FONT = new Font("Segoe UI", Font.BOLD, 16);
     public static final Font MONO_FONT = new Font("Consolas", Font.PLAIN, 11);
+    public static final Font SUBTITLE_FONT = new Font("Segoe UI", Font.PLAIN, 12);
+    public static final Font STATUS_FONT = new Font("Segoe UI", Font.BOLD, 12);
+    public static final Font VALUE_FONT = new Font("Segoe UI", Font.BOLD, 13);
+    public static final Font SMALL_FONT = new Font("Segoe UI", Font.PLAIN, 11);
 
     // Border
     public static final int BORDER_RADIUS = 8;
