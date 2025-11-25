@@ -420,21 +420,30 @@ public class HighAlchBot extends AbstractScript implements GUIEventListener {
             if (overlayRenderer != null) {
                 ScriptStatistics stats = new ScriptStatistics();
                 stats.sessionStartTime = sessionStartTime;
-                stats.scriptRuntime = System.currentTimeMillis() - sessionStartTime;
+
+                // Only calculate runtime if session has started
+                if (sessionStartTime > 0) {
+                    stats.scriptRuntime = System.currentTimeMillis() - sessionStartTime;
+                } else {
+                    stats.scriptRuntime = 0;
+                }
+
                 stats.isRunning = botRunning;
                 stats.alchsCompleted = totalAlchs;
                 stats.totalProfit = totalProfit;
                 stats.xpGained = totalXpGained;
                 stats.currentState = alchingEngine != null ? alchingEngine.getCurrentStateDescription() : "Stopped";
+                stats.currentAction = alchingEngine != null ? alchingEngine.getCurrentStateDescription() : "Ready";
+
+                // Calculate derived stats (rates per hour)
+                stats.calculateDerivedStats();
 
                 String status = botRunning ? "Running" : "Stopped";
                 overlayRenderer.render(g, stats, status);
             }
         } catch (Exception e) {
-            // Don't log paint errors too frequently
-            if (Math.random() < 0.01) {
-                BotUtils.logError("Error in paint method", e);
-            }
+            // Always log paint errors so we can debug issues
+            BotUtils.logError("Error in paint method", e);
         }
     }
 
