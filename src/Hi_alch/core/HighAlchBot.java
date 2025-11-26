@@ -417,18 +417,27 @@ public class HighAlchBot extends AbstractScript implements GUIEventListener {
     @Override
     public void onPaint(java.awt.Graphics2D g) {
         try {
-            if (overlayRenderer == null) {
-                // Overlay not initialized yet
+            // Validate Graphics2D object
+            if (g == null) {
                 return;
             }
 
-            ScriptStatistics stats = new ScriptStatistics();
+            // Check if overlay renderer is initialized
+            if (overlayRenderer == null) {
+                // Draw simple fallback text to show script is running
+                g.setColor(java.awt.Color.WHITE);
+                g.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
+                g.drawString("High Alchemy Bot v2.0 - Initializing...", 15, 350);
+                return;
+            }
 
             // Initialize session start time if needed
             if (sessionStartTime == 0) {
                 sessionStartTime = System.currentTimeMillis();
             }
 
+            // Create and populate statistics
+            ScriptStatistics stats = new ScriptStatistics();
             stats.sessionStartTime = sessionStartTime;
             stats.scriptRuntime = System.currentTimeMillis() - sessionStartTime;
             stats.isRunning = botRunning;
@@ -448,12 +457,24 @@ public class HighAlchBot extends AbstractScript implements GUIEventListener {
             // Calculate derived stats (rates per hour)
             stats.calculateDerivedStats();
 
+            // Render the overlay
             String status = botRunning ? "Running" : "Stopped";
             overlayRenderer.render(g, stats, status);
 
         } catch (Exception e) {
-            // Always log paint errors so we can debug issues
+            // Log errors and draw fallback overlay to show something went wrong
             BotUtils.logError("Error in paint method", e);
+
+            // Draw error message on screen
+            try {
+                if (g != null) {
+                    g.setColor(java.awt.Color.RED);
+                    g.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 12));
+                    g.drawString("Paint Error: " + e.getMessage(), 15, 350);
+                }
+            } catch (Exception ignored) {
+                // Ignore secondary errors
+            }
         }
     }
 

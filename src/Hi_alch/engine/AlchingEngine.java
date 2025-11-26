@@ -183,14 +183,11 @@ public class AlchingEngine {
         try {
             boolean hasItems = SupplyManager.hasItem(selectedItemId);
             boolean hasNatureRunes = SupplyManager.hasNatureRunes();
-            boolean hasCash = SupplyManager.hasCash();
-            int cashAmount = SupplyManager.getCashAmount();
 
             if (hasItems) {
                 BotUtils.log("🔍 Items found in inventory");
             }
             BotUtils.log("🌿 Nature Runes: " + (hasNatureRunes ? "✅ " + SupplyManager.getNatureRuneCount() : "❌"));
-            BotUtils.log("💰 Cash: " + (hasCash ? "✅ " + BotUtils.formatNumber(cashAmount) + " GP" : "❌ No cash"));
 
             if (skipBuyingEnabled) {
                 BotUtils.log("💡 Skip buying enabled - checking existing inventory");
@@ -213,11 +210,8 @@ public class AlchingEngine {
                 return 1000;
             }
 
-            // Normal buying flow - check cash first
-            if (!hasCash || cashAmount < MIN_CASH_REQUIRED) {
-                BotUtils.log("💰 Need to get cash from bank");
-                currentState = BotState.GETTING_CASH;
-            } else if (!hasItems) {
+            // Normal buying flow - no cash requirement needed
+            if (!hasItems) {
                 BotUtils.log("💰 Need to buy items: " + selectedItemName);
                 currentState = BotState.BUYING_ITEMS;
             } else if (!hasNatureRunes) {
