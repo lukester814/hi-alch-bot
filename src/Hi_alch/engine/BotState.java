@@ -6,6 +6,7 @@ package Hi_alch.engine;
 public enum BotState {
     INITIALIZING("Initializing bot systems"),
     CHECKING_SUPPLIES("Checking inventory supplies"),
+    GETTING_CASH("Withdrawing cash from bank"),
     BUYING_ITEMS("Purchasing items from GE"),
     BUYING_NATURE_RUNES("Buying nature runes"),
     ALCHING("Performing high alchemy"),
