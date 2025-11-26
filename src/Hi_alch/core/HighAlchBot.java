@@ -16,6 +16,10 @@ import org.dreambot.api.script.AbstractScript;
 import org.dreambot.api.script.ScriptManifest;
 import org.dreambot.api.script.Category;
 import javax.swing.SwingUtilities;
+import java.awt.Graphics2D;
+import java.awt.Graphics;
+import java.awt.Color;
+import java.awt.Font;
 
 /**
  * High Alchemy Bot v2.0 - Main Coordinator Class (REFACTORED)
@@ -415,19 +419,25 @@ public class HighAlchBot extends AbstractScript implements GUIEventListener {
     // ===========================================
 
     @Override
-    public void onPaint(java.awt.Graphics2D g) {
+    public void onPaint(Graphics g) {
         try {
+            // Cast to Graphics2D (required for DreamBot)
+            if (!(g instanceof Graphics2D)) {
+                return;
+            }
+            Graphics2D g2d = (Graphics2D) g;
+
             // Validate Graphics2D object
-            if (g == null) {
+            if (g2d == null) {
                 return;
             }
 
             // Check if overlay renderer is initialized
             if (overlayRenderer == null) {
                 // Draw simple fallback text to show script is running
-                g.setColor(java.awt.Color.WHITE);
-                g.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
-                g.drawString("High Alchemy Bot v2.0 - Initializing...", 15, 350);
+                g2d.setColor(Color.WHITE);
+                g2d.setFont(new Font("Arial", Font.BOLD, 14));
+                g2d.drawString("High Alchemy Bot v2.0 - Initializing...", 15, 350);
                 return;
             }
 
@@ -459,7 +469,7 @@ public class HighAlchBot extends AbstractScript implements GUIEventListener {
 
             // Render the overlay
             String status = botRunning ? "Running" : "Stopped";
-            overlayRenderer.render(g, stats, status);
+            overlayRenderer.render(g2d, stats, status);
 
         } catch (Exception e) {
             // Log errors and draw fallback overlay to show something went wrong
@@ -467,10 +477,11 @@ public class HighAlchBot extends AbstractScript implements GUIEventListener {
 
             // Draw error message on screen
             try {
-                if (g != null) {
-                    g.setColor(java.awt.Color.RED);
-                    g.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 12));
-                    g.drawString("Paint Error: " + e.getMessage(), 15, 350);
+                if (g instanceof Graphics2D) {
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setColor(Color.RED);
+                    g2d.setFont(new Font("Arial", Font.BOLD, 12));
+                    g2d.drawString("Paint Error: " + e.getMessage(), 15, 350);
                 }
             } catch (Exception ignored) {
                 // Ignore secondary errors
