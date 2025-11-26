@@ -33,6 +33,13 @@ public class BotConfigurationManager {
                 return false;
             }
 
+            // Validate item ID
+            if (config.selectedItemId <= 0) {
+                BotUtils.log("❌ Invalid item ID: " + config.selectedItemId);
+                BotUtils.log("💡 Please select a valid item from the dropdown or enter a custom item name");
+                return false;
+            }
+
             // Validate buy limit
             if (config.buyLimit <= 0) {
                 BotUtils.log("❌ Invalid buy limit: " + config.buyLimit);

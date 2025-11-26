@@ -421,14 +421,20 @@ public class HighAlchBot extends AbstractScript implements GUIEventListener {
     @Override
     public void onPaint(Graphics g) {
         try {
-            // Cast to Graphics2D (required for DreamBot)
-            if (!(g instanceof Graphics2D)) {
+            // Validate Graphics object first
+            if (g == null) {
                 return;
             }
-            Graphics2D g2d = (Graphics2D) g;
 
-            // Validate Graphics2D object
-            if (g2d == null) {
+            // Cast to Graphics2D (required for DreamBot)
+            Graphics2D g2d;
+            if (g instanceof Graphics2D) {
+                g2d = (Graphics2D) g;
+            } else {
+                // Fallback: draw with regular Graphics
+                g.setColor(Color.WHITE);
+                g.setFont(new Font("Arial", Font.BOLD, 14));
+                g.drawString("High Alchemy Bot v2.0 - Running", 15, 350);
                 return;
             }
 
@@ -438,6 +444,7 @@ public class HighAlchBot extends AbstractScript implements GUIEventListener {
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(new Font("Arial", Font.BOLD, 14));
                 g2d.drawString("High Alchemy Bot v2.0 - Initializing...", 15, 350);
+                g2d.drawString("Overlay loading...", 15, 370);
                 return;
             }
 
@@ -477,14 +484,23 @@ public class HighAlchBot extends AbstractScript implements GUIEventListener {
 
             // Draw error message on screen
             try {
-                if (g instanceof Graphics2D) {
-                    Graphics2D g2d = (Graphics2D) g;
-                    g2d.setColor(Color.RED);
-                    g2d.setFont(new Font("Arial", Font.BOLD, 12));
-                    g2d.drawString("Paint Error: " + e.getMessage(), 15, 350);
-                }
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setColor(new Color(255, 100, 100));
+                g2d.setFont(new Font("Arial", Font.BOLD, 14));
+                g2d.drawString("High Alchemy Bot v2.0", 15, 350);
+                g2d.setColor(Color.RED);
+                g2d.setFont(new Font("Arial", Font.PLAIN, 12));
+                g2d.drawString("Paint Error: " + e.getMessage(), 15, 370);
+                g2d.setColor(Color.YELLOW);
+                g2d.drawString("Bot is still running - check console", 15, 390);
             } catch (Exception ignored) {
-                // Ignore secondary errors
+                // Draw minimal fallback if even error handling fails
+                try {
+                    g.setColor(Color.WHITE);
+                    g.drawString("High Alch Bot Active", 15, 350);
+                } catch (Exception e2) {
+                    // Silently fail - can't render anything
+                }
             }
         }
     }

@@ -91,14 +91,16 @@ public class AlchingEngine {
         statistics.sessionStartTime = System.currentTimeMillis();
         this.alchemyConfigured = false;
 
-        BotUtils.log("⚙️ AlchingEngine configured for: " + itemName);
-        BotUtils.log("💰 Buy limit: " + buyLimit + " | Markup: " + priceMarkup + "%");
+        BotUtils.log("⚙️ AlchingEngine configured:");
+        BotUtils.log("  📦 Item: " + itemName + " (ID: " + itemId + ")");
+        BotUtils.log("  💰 Buy limit: " + buyLimit + " | Markup: " + priceMarkup + "%");
+        BotUtils.log("  🌿 Nature runes: " + natureRuneAmount);
         if (skipBuying) {
-            BotUtils.log("💡 Skip buying enabled - will use existing inventory");
+            BotUtils.log("  💡 Skip buying enabled - will use existing inventory");
             if (restockWhenEmpty) {
-                BotUtils.log("🔄 Restocking enabled - will buy more when empty");
+                BotUtils.log("  🔄 Restocking enabled - will buy more when empty");
             } else {
-                BotUtils.log("🛑 Restocking disabled - will stop when inventory empty");
+                BotUtils.log("  🛑 Restocking disabled - will stop when inventory empty");
             }
         }
     }

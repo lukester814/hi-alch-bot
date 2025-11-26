@@ -1,6 +1,7 @@
 package Hi_alch.gui;
 
 import Hi_alch.utils.BotUtils;
+import Hi_alch.api.ItemSearchAPI;
 import Hi_alch.gui.panels.*;
 import javax.swing.*;
 import java.awt.*;
@@ -180,9 +181,33 @@ public class AlchBotGUI {
         if (selectedItem != null && selectedItem.contains("Custom")) {
             config.selectedItemName = mainPanelBuilder.getCustomItemField().getText().trim();
             config.selectedItemId = mainPanelBuilder.getFoundCustomItemId();
+
+            // If custom item ID not found yet, search for it
+            if (config.selectedItemId == -1 && !config.selectedItemName.isEmpty()) {
+                ItemSearchAPI.ItemSearchResult result = ItemSearchAPI.searchItem(config.selectedItemName);
+                if (result != null && result.isValid()) {
+                    config.selectedItemId = result.itemId;
+                    config.selectedItemName = result.itemName; // Use exact name from API
+                    BotUtils.log("✅ Found custom item: " + result.itemName + " (ID: " + result.itemId + ")");
+                }
+            }
         } else {
             config.selectedItemName = selectedItem;
+            // Try hardcoded list first for speed
             config.selectedItemId = getItemIdFromName(selectedItem);
+
+            // If not found in hardcoded list, use ItemSearchAPI
+            if (config.selectedItemId == -1 && selectedItem != null && !selectedItem.contains("Select")) {
+                BotUtils.log("🔍 Item not in cache, searching API for: " + selectedItem);
+                ItemSearchAPI.ItemSearchResult result = ItemSearchAPI.searchItem(selectedItem);
+                if (result != null && result.isValid()) {
+                    config.selectedItemId = result.itemId;
+                    config.selectedItemName = result.itemName; // Use exact name from API
+                    BotUtils.log("✅ Found item: " + result.itemName + " (ID: " + result.itemId + ")");
+                } else {
+                    BotUtils.log("❌ Could not find item ID for: " + selectedItem);
+                }
+            }
         }
 
         // Trading config
@@ -328,14 +353,45 @@ public class AlchBotGUI {
         if (itemName == null) return -1;
 
         String nameLower = itemName.toLowerCase().trim();
+
+        // F2P items
         switch (nameLower) {
             case "rune longsword": return 1303;
+            case "rune battleaxe": return 1371;
             case "rune 2h sword": return 1319;
             case "rune platebody": return 1127;
             case "rune platelegs": return 1079;
+            case "rune plateskirt": return 1093;
+            case "rune chainbody": return 1113;
+            case "rune med helm": return 1147;
+            case "rune full helm": return 1163;
+            case "rune sq shield": return 1185;
+            case "rune kiteshield": return 1201;
+            case "green d'hide body": return 1135;
+            case "green d'hide chaps": return 1099;
+            case "adamant platebody": return 1123;
+            case "adamant platelegs": return 1073;
+
+            // P2P items
             case "dragon longsword": return 1305;
             case "dragon battleaxe": return 1377;
             case "dragon dagger": return 1215;
+            case "dragon mace": return 1434;
+            case "dragon scimitar": return 4587;
+            case "dragon sword": return 21009;
+            case "black d'hide body": return 2503;
+            case "black d'hide chaps": return 2497;
+            case "red d'hide body": return 2501;
+            case "red d'hide chaps": return 2495;
+            case "blue d'hide body": return 2499;
+            case "blue d'hide chaps": return 2493;
+            case "rune crossbow": return 9185;
+            case "magic longbow": return 859;
+            case "yew longbow": return 855;
+            case "maple longbow": return 851;
+            case "splitbark body": return 3385;
+            case "splitbark legs": return 3387;
+
             default: return -1;
         }
     }

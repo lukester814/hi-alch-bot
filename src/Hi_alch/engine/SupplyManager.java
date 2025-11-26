@@ -19,6 +19,13 @@ public class SupplyManager {
      */
     public static boolean buyItems(int itemId, String itemName, int buyQuantity, int buyPrice) {
         try {
+            // Validate item ID first
+            if (itemId <= 0) {
+                BotUtils.log("❌ Invalid item ID: " + itemId + " for item: " + itemName);
+                BotUtils.log("💡 Item ID must be a positive number");
+                return false;
+            }
+
             if (!GrandExchange.isOpen()) {
                 if (!GrandExchange.open()) {
                     BotUtils.log("❌ Failed to open Grand Exchange");
