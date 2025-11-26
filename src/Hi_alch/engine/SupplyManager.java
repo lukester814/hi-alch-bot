@@ -12,6 +12,7 @@ import org.dreambot.api.utilities.Sleep;
 public class SupplyManager {
 
     private static final int NATURE_RUNE_ID = 563;
+    private static final int COINS_ID = 995;
 
     /**
      * Buy items from Grand Exchange
@@ -184,5 +185,26 @@ public class SupplyManager {
      */
     public static int getNatureRuneCount() {
         return Inventory.count(NATURE_RUNE_ID);
+    }
+
+    /**
+     * Check if player has sufficient cash in inventory
+     */
+    public static boolean hasCash(int minAmount) {
+        return Inventory.contains(COINS_ID) && Inventory.count(COINS_ID) >= minAmount;
+    }
+
+    /**
+     * Get current cash amount in inventory
+     */
+    public static int getCashAmount() {
+        return Inventory.count(COINS_ID);
+    }
+
+    /**
+     * Check if player has cash in inventory (any amount)
+     */
+    public static boolean hasCash() {
+        return Inventory.contains(COINS_ID) && Inventory.count(COINS_ID) > 0;
     }
 }

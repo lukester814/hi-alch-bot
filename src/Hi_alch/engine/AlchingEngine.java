@@ -4,9 +4,12 @@ import Hi_alch.utils.BotUtils;
 import Hi_alch.managers.PriceManager;
 import Hi_alch.managers.AntibanSystem;
 import Hi_alch.managers.DiscordManager;
+import Hi_alch.managers.BankOperations;
 import Hi_alch.overlay.OverlayRenderer;
 import Hi_alch.overlay.ScriptStatistics;
 import org.dreambot.api.methods.container.impl.Inventory;
+import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.utilities.Sleep;
 
 /**
  * High Alchemy Bot Engine - Core Logic System (Refactored)
@@ -40,6 +43,11 @@ public class AlchingEngine {
 
     // Constants
     private static final int NATURE_RUNE_ID = 563;
+    private static final int COINS_ID = 995;
+    private static final int MIN_CASH_REQUIRED = 100000; // 100K GP minimum
+
+    // Managers
+    private BankOperations bankOperations;
 
     // ===========================================
     // CONSTRUCTORS
@@ -52,6 +60,7 @@ public class AlchingEngine {
         this.totalProfit = 0;
         this.isInitialized = false;
         this.alchemyConfigured = false;
+        this.bankOperations = new BankOperations();
 
         BotUtils.log("🧠 AlchingEngine created (Refactored)");
     }
@@ -103,6 +112,8 @@ public class AlchingEngine {
                     return handleInitializing();
                 case CHECKING_SUPPLIES:
                     return handleCheckingSupplies();
+                case GETTING_CASH:
+                    return handleGettingCash();
                 case BUYING_ITEMS:
                     return handleBuyingItems();
                 case BUYING_NATURE_RUNES:
@@ -172,11 +183,14 @@ public class AlchingEngine {
         try {
             boolean hasItems = SupplyManager.hasItem(selectedItemId);
             boolean hasNatureRunes = SupplyManager.hasNatureRunes();
+            boolean hasCash = SupplyManager.hasCash();
+            int cashAmount = SupplyManager.getCashAmount();
 
             if (hasItems) {
                 BotUtils.log("🔍 Items found in inventory");
             }
             BotUtils.log("🌿 Nature Runes: " + (hasNatureRunes ? "✅ " + SupplyManager.getNatureRuneCount() : "❌"));
+            BotUtils.log("💰 Cash: " + (hasCash ? "✅ " + BotUtils.formatNumber(cashAmount) + " GP" : "❌ No cash"));
 
             if (skipBuyingEnabled) {
                 BotUtils.log("💡 Skip buying enabled - checking existing inventory");
@@ -199,8 +213,11 @@ public class AlchingEngine {
                 return 1000;
             }
 
-            // Normal buying flow
-            if (!hasItems) {
+            // Normal buying flow - check cash first
+            if (!hasCash || cashAmount < MIN_CASH_REQUIRED) {
+                BotUtils.log("💰 Need to get cash from bank");
+                currentState = BotState.GETTING_CASH;
+            } else if (!hasItems) {
                 BotUtils.log("💰 Need to buy items: " + selectedItemName);
                 currentState = BotState.BUYING_ITEMS;
             } else if (!hasNatureRunes) {
@@ -217,6 +234,74 @@ public class AlchingEngine {
         }
 
         return 1500;
+    }
+
+    private int handleGettingCash() {
+        statistics.currentState = "Getting Cash";
+        statistics.currentAction = "Withdrawing cash from bank";
+
+        BotUtils.log("💰 Getting cash from bank...");
+
+        try {
+            // Check if we already have cash
+            if (SupplyManager.hasCash(MIN_CASH_REQUIRED)) {
+                BotUtils.log("✅ Already have sufficient cash");
+                currentState = BotState.CHECKING_SUPPLIES;
+                return 1000;
+            }
+
+            // Open bank
+            if (!Bank.isOpen()) {
+                BotUtils.log("🏦 Opening bank...");
+                if (Bank.open()) {
+                    Sleep.sleepUntil(Bank::isOpen, 5000);
+                } else {
+                    BotUtils.log("❌ Failed to open bank");
+                    currentState = BotState.ERROR_RECOVERY;
+                    return 3000;
+                }
+            }
+
+            if (!Bank.isOpen()) {
+                BotUtils.log("❌ Bank is not open");
+                currentState = BotState.ERROR_RECOVERY;
+                return 3000;
+            }
+
+            // Check if bank has cash
+            if (!bankOperations.hasCashInBank()) {
+                BotUtils.log("❌ No cash in bank!");
+                statistics.currentAction = "❌ No cash in bank";
+                currentState = BotState.ERROR_RECOVERY;
+                return 5000;
+            }
+
+            int bankCash = bankOperations.getCashInBank();
+            BotUtils.log("🏦 Bank contains: " + BotUtils.formatNumber(bankCash) + " GP");
+
+            // Withdraw cash
+            int amountToWithdraw = Math.max(MIN_CASH_REQUIRED, 1000000); // Withdraw 1M GP by default
+            if (bankOperations.withdrawCash(amountToWithdraw)) {
+                BotUtils.log("✅ Cash withdrawn successfully");
+
+                // Close bank
+                if (Bank.close()) {
+                    Sleep.sleepUntil(() -> !Bank.isOpen(), 3000);
+                }
+
+                currentState = BotState.CHECKING_SUPPLIES;
+                return 2000;
+            } else {
+                BotUtils.log("❌ Failed to withdraw cash");
+                currentState = BotState.ERROR_RECOVERY;
+                return 3000;
+            }
+
+        } catch (Exception e) {
+            BotUtils.logError("Error getting cash", e);
+            currentState = BotState.ERROR_RECOVERY;
+            return 3000;
+        }
     }
 
     private int handleBuyingItems() {

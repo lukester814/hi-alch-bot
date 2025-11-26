@@ -417,30 +417,40 @@ public class HighAlchBot extends AbstractScript implements GUIEventListener {
     @Override
     public void onPaint(java.awt.Graphics2D g) {
         try {
-            if (overlayRenderer != null) {
-                ScriptStatistics stats = new ScriptStatistics();
-                stats.sessionStartTime = sessionStartTime;
-
-                // Only calculate runtime if session has started
-                if (sessionStartTime > 0) {
-                    stats.scriptRuntime = System.currentTimeMillis() - sessionStartTime;
-                } else {
-                    stats.scriptRuntime = 0;
-                }
-
-                stats.isRunning = botRunning;
-                stats.alchsCompleted = totalAlchs;
-                stats.totalProfit = totalProfit;
-                stats.xpGained = totalXpGained;
-                stats.currentState = alchingEngine != null ? alchingEngine.getCurrentStateDescription() : "Stopped";
-                stats.currentAction = alchingEngine != null ? alchingEngine.getCurrentStateDescription() : "Ready";
-
-                // Calculate derived stats (rates per hour)
-                stats.calculateDerivedStats();
-
-                String status = botRunning ? "Running" : "Stopped";
-                overlayRenderer.render(g, stats, status);
+            if (overlayRenderer == null) {
+                // Overlay not initialized yet
+                return;
             }
+
+            ScriptStatistics stats = new ScriptStatistics();
+
+            // Initialize session start time if needed
+            if (sessionStartTime == 0) {
+                sessionStartTime = System.currentTimeMillis();
+            }
+
+            stats.sessionStartTime = sessionStartTime;
+            stats.scriptRuntime = System.currentTimeMillis() - sessionStartTime;
+            stats.isRunning = botRunning;
+            stats.alchsCompleted = totalAlchs;
+            stats.totalProfit = totalProfit;
+            stats.xpGained = totalXpGained;
+
+            // Get current state from engine or use default
+            if (alchingEngine != null && alchingEngine.isInitialized()) {
+                stats.currentState = alchingEngine.getCurrentStateDescription();
+                stats.currentAction = alchingEngine.getCurrentStateDescription();
+            } else {
+                stats.currentState = botRunning ? "Running" : "Waiting to start";
+                stats.currentAction = botRunning ? "Processing..." : "Configure settings and click Start";
+            }
+
+            // Calculate derived stats (rates per hour)
+            stats.calculateDerivedStats();
+
+            String status = botRunning ? "Running" : "Stopped";
+            overlayRenderer.render(g, stats, status);
+
         } catch (Exception e) {
             // Always log paint errors so we can debug issues
             BotUtils.logError("Error in paint method", e);

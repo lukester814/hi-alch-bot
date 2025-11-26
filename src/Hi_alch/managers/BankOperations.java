@@ -13,8 +13,11 @@ import org.dreambot.api.utilities.Sleep;
  * - Deposit items
  * - Deposit all / deposit all except
  * - Bank preset loading
+ * - Cash management
  */
 public class BankOperations {
+
+    private static final int COINS_ID = 995;
 
     // ===========================================
     // ITEM OPERATIONS
@@ -232,6 +235,110 @@ public class BankOperations {
 
         } catch (Exception e) {
             return 0;
+        }
+    }
+
+    // ===========================================
+    // CASH MANAGEMENT
+    // ===========================================
+
+    /**
+     * Check if player has cash in bank
+     */
+    public boolean hasCashInBank() {
+        try {
+            if (!Bank.isOpen()) {
+                return false;
+            }
+
+            return Bank.contains(COINS_ID) && Bank.count(COINS_ID) > 0;
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get cash amount in bank
+     */
+    public int getCashInBank() {
+        try {
+            if (!Bank.isOpen()) {
+                return 0;
+            }
+
+            return Bank.count(COINS_ID);
+
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Withdraw cash from bank
+     */
+    public boolean withdrawCash(int amount) {
+        try {
+            if (!Bank.isOpen()) {
+                BotUtils.log("❌ Bank is not open");
+                return false;
+            }
+
+            if (!Bank.contains(COINS_ID)) {
+                BotUtils.log("❌ No coins in bank");
+                return false;
+            }
+
+            int bankCash = Bank.count(COINS_ID);
+            BotUtils.log("💰 Bank has " + BotUtils.formatNumber(bankCash) + " GP");
+
+            if (bankCash < amount) {
+                BotUtils.log("⚠️ Insufficient cash in bank. Need: " +
+                        BotUtils.formatNumber(amount) + " GP, Have: " +
+                        BotUtils.formatNumber(bankCash) + " GP");
+                // Withdraw what we have
+                amount = bankCash;
+            }
+
+            int beforeCount = Inventory.count(COINS_ID);
+
+            if (Bank.withdraw(COINS_ID, amount)) {
+                Sleep.sleepUntil(() -> Inventory.count(COINS_ID) > beforeCount, 3000);
+                int withdrawn = Inventory.count(COINS_ID) - beforeCount;
+                BotUtils.log("✅ Withdrew " + BotUtils.formatNumber(withdrawn) + " GP from bank");
+                return true;
+            }
+
+            BotUtils.log("❌ Failed to withdraw cash");
+            return false;
+
+        } catch (Exception e) {
+            BotUtils.logError("Error withdrawing cash", e);
+            return false;
+        }
+    }
+
+    /**
+     * Withdraw all cash from bank
+     */
+    public boolean withdrawAllCash() {
+        try {
+            if (!Bank.isOpen()) {
+                BotUtils.log("❌ Bank is not open");
+                return false;
+            }
+
+            if (!Bank.contains(COINS_ID)) {
+                BotUtils.log("❌ No coins in bank");
+                return false;
+            }
+
+            int bankCash = Bank.count(COINS_ID);
+            return withdrawCash(bankCash);
+
+        } catch (Exception e) {
+            BotUtils.logError("Error withdrawing all cash", e);
+            return false;
         }
     }
 }

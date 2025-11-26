@@ -25,6 +25,14 @@ public class BotConfigurationManager {
                 return false;
             }
 
+            // Check for placeholder text
+            String itemNameLower = config.selectedItemName.toLowerCase().trim();
+            if (itemNameLower.contains("select") || itemNameLower.contains("choose") ||
+                itemNameLower.equals("---") || itemNameLower.isEmpty()) {
+                BotUtils.log("❌ Please select a valid item to alch");
+                return false;
+            }
+
             // Validate buy limit
             if (config.buyLimit <= 0) {
                 BotUtils.log("❌ Invalid buy limit: " + config.buyLimit);

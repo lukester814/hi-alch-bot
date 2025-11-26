@@ -169,6 +169,12 @@ public class EventHandlerManager {
         mainPanel.getStartButton().addActionListener(e -> {
             if (eventListener != null) {
                 GUIConfiguration config = getCurrentConfiguration();
+
+                // Validate item selection before starting
+                if (!validateItemSelection(config)) {
+                    return;
+                }
+
                 eventListener.onStartBot(config);
                 updateButtonStates(true);
             }
@@ -419,5 +425,45 @@ public class EventHandlerManager {
         long timestamp = System.currentTimeMillis();
         int random = (int)(Math.random() * 10000);
         return "USR" + (timestamp % 100000) + "R" + random;
+    }
+
+    private boolean validateItemSelection(GUIConfiguration config) {
+        // Check if item name is valid
+        if (config.selectedItemName == null || config.selectedItemName.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(frame,
+                    "Please select an item to alch!",
+                    "No Item Selected",
+                    JOptionPane.WARNING_MESSAGE);
+            updateStatus("❌ No item selected");
+            return false;
+        }
+
+        // Check for placeholder text
+        String itemNameLower = config.selectedItemName.toLowerCase().trim();
+        if (itemNameLower.contains("select") || itemNameLower.contains("choose") ||
+            itemNameLower.equals("---")) {
+            JOptionPane.showMessageDialog(frame,
+                    "Please select a valid item from the dropdown!",
+                    "Invalid Item",
+                    JOptionPane.WARNING_MESSAGE);
+            updateStatus("❌ Please select a valid item");
+            return false;
+        }
+
+        // For custom items, validate that the item was found
+        String selectedItem = (String) mainPanel.getItemDropdown().getSelectedItem();
+        if (selectedItem != null && selectedItem.contains("Custom")) {
+            if (config.selectedItemId <= 0 && mainPanel.getFoundCustomItemId() <= 0) {
+                JOptionPane.showMessageDialog(frame,
+                        "Please validate your custom item first!\n" +
+                        "Enter the item name and click 'Validate'.",
+                        "Custom Item Not Validated",
+                        JOptionPane.WARNING_MESSAGE);
+                updateStatus("❌ Custom item not validated");
+                return false;
+            }
+        }
+
+        return true;
     }
 }
